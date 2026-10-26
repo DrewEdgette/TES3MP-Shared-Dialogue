@@ -98,6 +98,9 @@ namespace MWBase
             ///< Make an actor say some text.
             /// \param filename name of a sound file in "Sound/" in the data directory.
 
+            virtual bool sayOptional(const MWWorld::ConstPtr& reference, const std::string& filename) = 0;
+            ///< Play an optional local voice file; return false silently if unavailable.
+
             virtual void say(const std::string& filename) = 0;
             ///< Say some text, without an actor ref
             /// \param filename name of a sound file in "Sound/" in the data directory.

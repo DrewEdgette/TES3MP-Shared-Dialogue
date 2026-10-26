@@ -9,9 +9,10 @@
   and the 420-unit 3D distance boundary.
 - Production serializer tests for UTF-8, every byte truncation of a valid message,
   malformed sizes/actions, topic limits and fresh decode state.
-- **87** live checks against an isolated server and four headless clients:
+- **98** live checks against an isolated server and four headless clients:
   filtering, ownership, spectator permissions, topic updates, replay, death,
-  cell transitions and disconnect cleanup.
+  cell transitions, disconnect cleanup, live voice relay, duplicate/stale voice
+  rejection, unauthorized speech and transcript replay without voice data.
 - Two rendered clients: automatic opening, matching text, inert blue keywords
   and topic entries, wheel/scrollbar operation, leave/rejoin including new topics,
   role reversal, session closure and Training status.
@@ -27,6 +28,15 @@
 - Two rendered clients in a fresh runtime using the packaged DLLs
   showed matching text, passive blue keywords and topic lists, and mirrored
   a speaker's topic selection.
+- VoV: two rendered clients played a real Caius greeting and blue-keyword response
+  through the native sound manager. Synthetic local dialogue checked a missing
+  speaker file, a file available only to the speaker, a completely unvoiced
+  response, WAV-to-MP3 fallback, stopping old speech, inert spectator clicks,
+  leave/rejoin without replay, and new speech after rejoin. No missing-file audio
+  errors appeared. Reopening history restored text only.
+- With VoV and the synthetic dialogue plugin disabled on the initiator, the
+  ordinary greeting and keyword response worked with zero shared voice events
+  or audio-loading errors, including for a spectator with VoV installed.
 
 Rendered automation used a disposable localhost Lua fixture and `ForceGreeting`
 to open the real NPC window. Human playtesting additionally exercised normal use.
@@ -36,7 +46,9 @@ to open the real NPC window. Human playtesting additionally exercised normal use
 - DLC quest coverage, all mods and all custom server scripts are not exhaustive.
 - Windows x64 is the validated game platform; VR/Linux/macOS remain unvalidated.
 - The translated `@topic#` code path is supported, but rendered tests used English.
-- Service contents and voice audio are not mirrored. Activity labels are English.
+- Service contents are not mirrored. Activity labels are English. Voice support
+  targets the legacy VoV ESP's `Say` scripts; modern OpenMW Lua voice mods are not
+  supported. Voice files are never supplied or transferred by this fork.
 - History lasts only for the session, subject to the [documented limits](architecture.md).
 
 ## Running tests

@@ -120,7 +120,7 @@ namespace MWSound
         return std::make_shared<FFmpeg_Decoder>(mVFS);
     }
 
-    DecoderPtr SoundManager::loadVoice(const std::string &voicefile)
+    DecoderPtr SoundManager::loadVoice(const std::string &voicefile, bool optional)
     {
         try
         {
@@ -135,6 +135,7 @@ namespace MWSound
                 std::string::size_type pos = file.rfind('.');
                 if(pos != std::string::npos)
                     file = file.substr(0, pos)+".mp3";
+                if (optional && !mVFS->exists(file)) return nullptr;
                 decoder->open(file);
             }
 
@@ -142,7 +143,7 @@ namespace MWSound
         }
         catch(std::exception &e)
         {
-            Log(Debug::Error) << "Failed to load audio from " << voicefile << ": " << e.what();
+            if (!optional) Log(Debug::Error) << "Failed to load audio from " << voicefile << ": " << e.what();
         }
 
         return nullptr;
@@ -352,24 +353,35 @@ namespace MWSound
 
     void SoundManager::say(const MWWorld::ConstPtr &ptr, const std::string &filename)
     {
+        sayImpl(ptr, filename, false);
+    }
+
+    bool SoundManager::sayOptional(const MWWorld::ConstPtr& ptr, const std::string& filename)
+    {
+        return sayImpl(ptr, filename, true);
+    }
+
+    bool SoundManager::sayImpl(const MWWorld::ConstPtr& ptr, const std::string& filename, bool optional)
+    {
         if(!mOutput->isInitialized())
-            return;
+            return false;
 
         std::string voicefile = "Sound/"+filename;
 
         mVFS->normalizeFilename(voicefile);
-        DecoderPtr decoder = loadVoice(voicefile);
+        DecoderPtr decoder = loadVoice(voicefile, optional);
         if (!decoder)
-            return;
+            return false;
 
         MWBase::World *world = MWBase::Environment::get().getWorld();
         const osg::Vec3f pos = world->getActorHeadTransform(ptr).getTrans();
 
         stopSay(ptr);
         StreamPtr sound = playVoice(decoder, pos, (ptr == MWMechanics::getPlayer()));
-        if(!sound) return;
+        if(!sound) return false;
 
         mSaySoundsQueue.emplace(ptr, std::move(sound));
+        return true;
     }
 
     float SoundManager::getSaySoundLoudness(const MWWorld::ConstPtr &ptr) const

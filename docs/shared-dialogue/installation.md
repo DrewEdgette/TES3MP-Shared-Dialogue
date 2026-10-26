@@ -9,7 +9,7 @@
   Use the current x64 installer if Windows reports a missing `MSVCP140.dll` or
   `VCRUNTIME140.dll`. It may already be installed on your machine.
 
-Version 0.1.0 reports `0.8.1-shared-dialogue.1`, protocol **12**. Other TES3MP
+Version 0.2.0 reports `0.8.1-shared-dialogue.2`, protocol **13**. Other TES3MP
 versions, VR, Linux and macOS game builds have not been validated for this release.
 
 ## Joining players

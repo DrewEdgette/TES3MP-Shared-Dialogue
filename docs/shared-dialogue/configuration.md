@@ -24,7 +24,7 @@ window. Leaving the cell, death or leaving the conversation does.
 
 ## Network compatibility
 
-Shared Dialogue 0.1.0 reports `0.8.1-shared-dialogue.1` and uses protocol **12**.
+Shared Dialogue 0.2.0 reports `0.8.1-shared-dialogue.2` and uses protocol **13**.
 Every client and the server must use the same Shared Dialogue release; stock
 TES3MP is incompatible. TES3MP checks the protocol, complete version string and
 commit identifier stored in `resources/version`. Upgrade the whole group,
@@ -55,3 +55,24 @@ A player already using a menu declines automatic invitations and can join later
 by activating the NPC. New arrivals can also join manually. Goodbye, disconnect,
 death or cell change ends the speaker's session. A listener can always leave
 without ending it.
+
+## Optional Voices of Vvardenfell
+
+VoV is not required. This build supports the legacy ESP that uses the native
+`Say` command in dialogue result scripts, including `VoV-uniqueDialogOnly.esp`.
+It does not add modern OpenMW Lua support to TES3MP 0.8.1.
+
+Only the initiator's opening greeting and deliberate topic selections can send
+speech. Each listener plays the named file from their own `Data Files/Sound`
+through the normal voice volume and NPC positioning. Both players need the
+matching local voice files to hear the same line; the server needs no audio.
+A missing file, absent mod, or unvoiced response is normal and stays silent.
+Morrowind's existing `.wav` to `.mp3` fallback is preserved. Server content-list
+requirements for ESPs still apply separately from optional sound-file playback.
+
+Joining/rejoining restores the transcript without replaying any previous audio,
+even the line currently being spoken. Future voiced responses play normally.
+Advancing to a new response (including an unvoiced one), leaving, entering a
+service or closing the conversation stops shared speech. Scrolling, topic-list
+updates and spectator clicks cannot start speech. Service and answer-button
+result scripts are not mirrored as voice events.

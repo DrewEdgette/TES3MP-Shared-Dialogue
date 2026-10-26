@@ -100,7 +100,8 @@ namespace MWSound
         Sound_Buffer *insertSound(const std::string &soundId, const ESM::Sound *sound);
 
         // returns a decoder to start streaming, or nullptr if the sound was not found
-        DecoderPtr loadVoice(const std::string &voicefile);
+        DecoderPtr loadVoice(const std::string &voicefile, bool optional = false);
+        bool sayImpl(const MWWorld::ConstPtr& reference, const std::string& filename, bool optional);
 
         SoundPtr getSoundRef();
         StreamPtr getStreamRef();
@@ -163,6 +164,7 @@ namespace MWSound
         ///< Start playing title music
 
         void say(const MWWorld::ConstPtr &reference, const std::string& filename) override;
+        bool sayOptional(const MWWorld::ConstPtr& reference, const std::string& filename) override;
         ///< Make an actor say some text.
         /// \param filename name of a sound file in "Sound/" in the data directory.
 

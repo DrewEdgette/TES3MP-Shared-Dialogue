@@ -154,6 +154,7 @@ namespace MWGui
 
         void receiveSharedDialogue(const mwmp::dialogue::Message& message);
         void updateSharedDialogue(float dt);
+        bool saySharedDialogue(const MWWorld::Ptr& actor, const std::string& filename);
         bool isSharedDialogueOwner() const { return mSharedSession != 0 && !mSpectator && !mWaitingForShared; }
         std::uint64_t getSharedDialogueSession() const { return mSharedSession; }
 
@@ -189,6 +190,14 @@ namespace MWGui
         void onReferenceUnavailable() override;
 
     private:
+        struct SharedVoiceScope
+        {
+            DialogueWindow& window;
+            bool previous;
+            explicit SharedVoiceScope(DialogueWindow& value);
+            ~SharedVoiceScope();
+        };
+        void stopSharedVoice();
         bool beginSharedDialogue(const MWWorld::Ptr& actor);
         void finishSharedDialogue(bool notifyServer = true);
         void closeSharedDialogue(bool notifyServer);
@@ -199,6 +208,9 @@ namespace MWGui
         float mSharedWaitTime = 0;
         std::string mSharedCell, mSharedSpeaker, mSharedStatus;
         std::vector<std::string> mSharedChoices, mSharedTopics;
+        bool mSharedVoiceCapture = false;
+        mwmp::dialogue::VoiceState mSharedVoice;
+        MWWorld::Ptr mSharedVoiceActor;
 
         void updateDisposition();
         void restock();

@@ -19,16 +19,16 @@ namespace mwmp
         if (!send) data = dialogue::Message();
 
         // Use length-prefixed, bounded raw bytes: reject bad lengths BEFORE allocating.
-        auto string = [&](std::string& value) {
+        auto string = [&](std::string& value, std::size_t limit = dialogue::MaxString) {
             std::uint32_t size = send ? static_cast<std::uint32_t>(value.size()) : 0;
-            if (!RW(size, send) || size > dialogue::MaxString) return false;
+            if (!RW(size, send) || size > limit) return false;
             if (!send) value.resize(size);
             if (!size) return true;
             char* bytes = &value[0];
             return RW(bytes, size, send);
         };
         unsigned char action = static_cast<unsigned char>(data.action);
-        if (!RW(action, send) || action > static_cast<unsigned char>(dialogue::Action::Denied) ||
+        if (!RW(action, send) || action > static_cast<unsigned char>(dialogue::Action::Voice) ||
             !RW(data.session, send) || !RW(data.request, send) || !RW(data.owner, send) ||
             !string(data.actor.cell) || !string(data.actor.refId) || !string(data.actor.name) ||
             !RW(data.actor.refNum, send) || !RW(data.actor.mpNum, send))
@@ -63,5 +63,10 @@ namespace mwmp
             bytes += topic.size();
             if (bytes > dialogue::MaxTopicBytes) { packetValid = false; return; }
         }
+        // Ordinary dialogue packets carry no voice fields at all.
+        if (data.action == dialogue::Action::Voice &&
+            (!RW(data.response, send) || !string(data.voice, dialogue::MaxVoicePath) ||
+                !data.response || !dialogue::validVoicePath(data.voice)))
+            packetValid = false;
     }
 }

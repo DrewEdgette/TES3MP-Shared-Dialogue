@@ -2,10 +2,12 @@
 #include <MyGUI_Button.h>
 #include <components/widgets/list.hpp>
 #include <components/misc/stringops.hpp>
+#include <components/debug/debuglog.hpp>
 #include "../mwbase/environment.hpp"
 #include "../mwbase/windowmanager.hpp"
 #include "../mwbase/world.hpp"
 #include "../mwbase/dialoguemanager.hpp"
+#include "../mwbase/soundmanager.hpp"
 #include "../mwworld/class.hpp"
 #include "../mwworld/cellstore.hpp"
 #include "../mwmechanics/actorutil.hpp"
@@ -30,6 +32,48 @@ namespace MWGui
         }
         std::string cellName(const MWWorld::Ptr& actor)
         { return Misc::StringUtils::lowerCase(actor.getCell()->getCell()->getShortDescription()); }
+    }
+
+    DialogueWindow::SharedVoiceScope::SharedVoiceScope(DialogueWindow& value)
+        : window(value), previous(value.mSharedVoiceCapture)
+    {
+        window.mSharedVoiceCapture = window.isSharedDialogueOwner();
+    }
+
+    DialogueWindow::SharedVoiceScope::~SharedVoiceScope()
+    {
+        window.mSharedVoiceCapture = previous;
+    }
+
+    void DialogueWindow::stopSharedVoice()
+    {
+        if (!mSharedVoiceActor.isEmpty())
+        {
+            MWBase::Environment::get().getSoundManager()->stopSay(mSharedVoiceActor);
+            Log(Debug::Verbose) << "Shared dialogue voice stopped: session " << mSharedSession;
+        }
+        mSharedVoiceActor = MWWorld::Ptr();
+    }
+
+    bool DialogueWindow::saySharedDialogue(const MWWorld::Ptr& actor, const std::string& filename)
+    {
+        // Called only by Say in a dialogue result script. The scope admits the
+        // greeting and deliberate topic selections, not ambient or service speech.
+        if (!mSharedVoiceCapture || !isSharedDialogueOwner() || actor != mPtr) return false;
+        if (!mwmp::dialogue::validVoicePath(filename)) return true;
+        if (!MWBase::Environment::get().getSoundManager()->sayOptional(actor, filename)) return true;
+        mSharedVoiceActor = actor;
+        if (mSharedVoice.accept(mSharedVoice.response, filename))
+        {
+            mwmp::dialogue::Message message;
+            message.action = mwmp::dialogue::Action::Voice;
+            message.session = mSharedSession;
+            message.response = mSharedVoice.response;
+            message.voice = filename;
+            sendShared(message);
+            Log(Debug::Verbose) << "Shared dialogue voice sent: response " << message.response << ", " << filename;
+        }
+        return true;
     }
 
     void DialogueWindow::clearSharedHistory()
@@ -80,6 +124,8 @@ namespace MWGui
 
     void DialogueWindow::finishSharedDialogue(bool notifyServer)
     {
+        stopSharedVoice();
+        mSharedVoice = mwmp::dialogue::VoiceState();
         if (mSharedSession && notifyServer)
         {
             mwmp::dialogue::Message message;
@@ -102,6 +148,8 @@ namespace MWGui
             closeSharedDialogue(true);
             return;
         }
+        if (!entry.message) stopSharedVoice();
+        mSharedVoice.append(entry);
         mwmp::dialogue::Message message;
         message.action = mwmp::dialogue::Action::Append;
         message.session = mSharedSession;
@@ -162,6 +210,7 @@ namespace MWGui
             mSharedStatus = message.status;
             mSharedChoices = message.choices;
             mSharedTopics = message.topics;
+            mSharedVoice.restore(message.entries);
             mOpeningShared = true;
             windows->pushGuiMode(GM_Dialogue, actor);
             mOpeningShared = false;
@@ -193,15 +242,29 @@ namespace MWGui
         else if (mSpectator && message.action == Action::Append)
         {
             for (const auto& entry : message.entries)
+            {
+                if (!entry.message) stopSharedVoice();
+                mSharedVoice.append(entry);
                 mHistoryContents.push_back(entry.message ? static_cast<DialogueText*>(new Message(entry.text)) :
                     new Response(entry.text, entry.title, entry.margin, false));
+            }
             updateHistory();
+        }
+        else if (mSpectator && message.action == Action::Voice &&
+            mSharedVoice.accept(message.response, message.voice))
+        {
+            if (MWBase::Environment::get().getSoundManager()->sayOptional(mPtr, message.voice))
+            {
+                mSharedVoiceActor = mPtr;
+                Log(Debug::Verbose) << "Shared dialogue voice played: response " << message.response << ", " << message.voice;
+            }
         }
         else if (mSpectator && message.action == Action::State)
         {
             mSharedChoices = message.choices;
             mSharedTopics = message.topics;
             mSharedStatus = message.status;
+            if (mSharedStatus != "Talking") stopSharedVoice();
             updateTopicsPane();
             updateHistory();
         }
@@ -252,6 +315,7 @@ namespace MWGui
         const std::vector<std::string> topics(mKeywords.begin(), mKeywords.end());
         if (status == mSharedStatus && choices == mSharedChoices && topics == mSharedTopics) return;
         mSharedStatus = status;
+        if (status != "Talking") stopSharedVoice();
         mSharedChoices = choices;
         mSharedTopics = topics;
         mwmp::dialogue::Message message;

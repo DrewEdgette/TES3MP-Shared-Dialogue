@@ -120,5 +120,43 @@ int main()
     fresh = sessions.open(2, caius, "Speaker")->id;
     for (std::size_t i = 0; i < MaxEntries; ++i) CHECK(sessions.append(fresh, 2, Entry()));
     CHECK(!sessions.append(fresh, 2, Entry()));
+
+    const std::string voice = "Vo/AIV/Imperial/M/general darius/1743727191259888357.mp3";
+    CHECK(validVoicePath(voice));
+    CHECK(validVoicePath("Vo\\AIV\\a voice.wav"));
+    for (const auto& path : {std::string(), std::string("/absolute.mp3"), std::string("\\absolute.mp3"),
+        std::string("C:\\voice.mp3"), std::string("../voice.mp3"), std::string("Vo/../voice.mp3"),
+        std::string("Vo\\..\\voice.mp3"), std::string("Vo//voice.mp3"), std::string("Vo/./voice.mp3"),
+        std::string("Vo/voice.mp3/"), std::string("Vo/voice\0.mp3", 13), std::string(MaxVoicePath + 1, 'x')})
+        CHECK(!validVoicePath(path));
+
+    Sessions spoken;
+    const auto conversation = spoken.open(1, caius, "Speaker")->id;
+    CHECK(!spoken.voice(conversation, 1, 1, voice)); // no response yet
+    CHECK(spoken.append(conversation, 1, greeting));
+    CHECK(!spoken.voice(conversation, 2, 1, voice)); // listener cannot send speech
+    CHECK(!spoken.voice(conversation, 1, 2, voice)); // future response
+    CHECK(!spoken.voice(conversation, 1, 1, "../voice.mp3"));
+    CHECK(spoken.voice(conversation, 1, 1, voice));
+    CHECK(!spoken.voice(conversation, 1, 1, voice)); // duplicate
+    CHECK(spoken.append(conversation, 1, quest)); // this line has no audio
+    CHECK(!spoken.voice(conversation, 1, 1, voice)); // stale speech
+    CHECK(spoken.join(conversation, 2));
+    VoiceState listener;
+    listener.restore(spoken.find(conversation)->history);
+    CHECK(listener.response == 2);
+    CHECK(!listener.accept(2, voice)); // even an in-flight voice cannot replay history
+    CHECK(spoken.append(conversation, 1, greeting));
+    listener.append(greeting);
+    CHECK(spoken.voice(conversation, 1, 3, voice));
+    CHECK(listener.accept(3, voice));
+    CHECK(!listener.accept(3, voice));
+    Entry notification; notification.message = true;
+    listener.append(notification);
+    CHECK(listener.response == 3 && !listener.accept(3, voice));
+    listener.restore(spoken.find(conversation)->history);
+    CHECK(!listener.accept(3, voice)); // leave/rejoin never repeats a line
+    CHECK(spoken.end(conversation, 1));
+    CHECK(!spoken.voice(conversation, 1, 3, voice));
     std::cout << checks << " shared dialogue checks passed\n";
 }

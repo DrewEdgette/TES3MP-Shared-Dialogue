@@ -119,6 +119,16 @@ namespace mwmp
         else if (message.action == Action::State &&
             mSessions.state(session->id, player.guid.g, message.status, message.choices, message.topics))
             broadcast(*session, message);
+        else if (message.action == Action::Voice &&
+            mSessions.voice(session->id, player.guid.g, message.response, message.voice))
+        {
+            dialogue::Message voice;
+            voice.action = Action::Voice;
+            voice.session = session->id;
+            voice.response = message.response;
+            voice.voice = message.voice;
+            broadcast(*session, voice);
+        }
     }
     void SharedDialogue::update()
     {

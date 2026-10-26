@@ -2,7 +2,7 @@
 
 This patch is based on TES3MP commit
 `49be5b6405d6ab427e06ed350cf76c715a1f3bdd` (0.8.1).
-Its reported version is `0.8.1-shared-dialogue.1`, protocol 12.
+Its reported version is `0.8.1-shared-dialogue.2`, protocol 13.
 
 ## Ownership and presentation
 
@@ -58,6 +58,26 @@ Each transcript permits 4,096 entries or 4 MiB of text; individual strings permi
 Exceeding history limits ends the
 conversation with a message rather than silently losing earlier dialogue.
 The server retains no transcript after the owner ends the session.
+
+## Optional live speech
+
+`Voice` carries a bounded relative sound filename and response number on the
+same reliable ordered channel as `Append`. It contains no audio bytes and is
+never stored in transcript history. The server accepts one voice event for the
+current response from its owner; stale, duplicate and unauthorized events are
+ignored. Filenames cannot be absolute or traverse outside `Sound/`.
+
+A scoped hook admits `Say` only during the owner's initial greeting or topic
+selection, for that conversation's NPC. It sends the event only after optional
+local playback succeeds. Spectators call only the sound manager, never a result
+script. `sayOptional` checks the VFS and the normal MP3 fallback before opening a
+file; missing/unavailable speech returns false without a missing-file error.
+
+`VoiceState` counts response entries (excluding message boxes). Restoring history
+sets the counter but marks the current response ineligible for speech, so even
+an in-flight event cannot replay a line on rejoin. New responses stop existing
+shared speech, including responses with no voice. Leaving, service transitions
+and session cleanup also stop it. Normal dialogue needs no voice event.
 
 ## Windows isolation
 

@@ -139,9 +139,18 @@ int main(int argc, char** argv)
         append.entries = {greeting};
         a.send(append);
         CHECK(b.wait(Action::Append).entries[0].text == greeting.text);
+        Message voice; voice.action = Action::Voice; voice.session = owner.session;
+        voice.response = 1;
+        voice.voice = "Vo/AIV/Imperial/M/general darius/1743727191259888357.mp3";
+        b.send(voice); // unauthorized speech cannot consume the owner's event
+        a.send(voice);
+        auto heard = b.wait(Action::Voice);
+        CHECK(heard.voice == voice.voice && heard.response == 1);
+        a.send(voice); // duplicate, must not reach the listener
         Entry quest; quest.title = "Orders"; quest.text = "Full story, before the shared journal update.";
         append.entries = {quest}; a.send(append);
         CHECK(b.wait(Action::Append).entries[0].text == quest.text);
+        a.send(voice); // stale: this newer response has no audio
         Message state; state.action = Action::State; state.session = owner.session;
         state.status = "Bartering"; state.choices = {"Yes", "No"};
         const std::vector<std::string> topics = {"background", "orders", u8"étranger"};
@@ -149,6 +158,7 @@ int main(int argc, char** argv)
         a.send(state);
         auto shown = b.wait(Action::State);
         CHECK(shown.status == "Bartering" && shown.topics == topics);
+        CHECK(b.inbox.empty()); // no forged, duplicate or stale Voice messages
 
         // A listener cannot append text, change state, or close the owner's session.
         Entry forged; forged.text = "FORGED"; append.entries = {forged}; b.send(append);
@@ -158,6 +168,7 @@ int main(int argc, char** argv)
         std::this_thread::sleep_for(std::chrono::milliseconds(150));
         Entry absent; absent.text = "This happened while the listener was away.";
         append.entries = {absent}; a.send(append);
+        voice.response = 3; a.send(voice); // speech while the listener is absent
         std::this_thread::sleep_for(std::chrono::milliseconds(150));
         b.pump(); CHECK(b.inbox.empty());
         request.request = 2; b.send(request);
@@ -167,9 +178,12 @@ int main(int argc, char** argv)
         CHECK(replay.status == "Bartering" && replay.choices.size() == 2);
         CHECK(replay.topics == topics);
         CHECK(!replay.entries[0].margin);
+        CHECK(replay.voice.empty() && replay.response == 0); // text replay carries no speech
+        a.send(voice); // cannot replay speech by resending after rejoin
 
         state.status = "Talking"; state.topics = {"newly discovered topic"};
         a.send(state); CHECK(b.wait(Action::State).topics == state.topics);
+        CHECK(b.inbox.empty());
         b.send(leave);
         std::this_thread::sleep_for(std::chrono::milliseconds(150));
         state.topics.push_back("discovered while absent"); a.send(state);

@@ -57,7 +57,7 @@ function OnPlayerConnect(pid)
     connected[pid] = true
     tes3mp.SendBaseInfo(pid)
     tes3mp.SetCell(pid, cell)
-    tes3mp.SetPos(pid, 140 + pid * 60, -190, 72.6)
+    tes3mp.SetPos(pid, 140 + pid * 20, -190, 72.6)
     tes3mp.SetRot(pid, 0, -1.57)
     tes3mp.SendCell(pid)
     tes3mp.SendPos(pid)

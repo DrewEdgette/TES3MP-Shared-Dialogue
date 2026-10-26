@@ -555,7 +555,12 @@ namespace MWGui
         mGoodbye = false;
         mTopicsList->setEnabled(true);
 
-        if (!MWBase::Environment::get().getDialogueManager()->startDialogue(actor, mGreetingCallback.get()))
+        bool started;
+        {
+            SharedVoiceScope voice(*this);
+            started = MWBase::Environment::get().getDialogueManager()->startDialogue(actor, mGreetingCallback.get());
+        }
+        if (!started)
         {
             // No greetings found. The dialogue window should not be shown.
             // If this is a companion, we must show the companion window directly (used by BM_bear_be_unique).
@@ -838,7 +843,10 @@ namespace MWGui
         if (mGoodbye)
             return;
 
-        MWBase::Environment::get().getDialogueManager()->keywordSelected(topicId, mCallback.get());
+        {
+            SharedVoiceScope voice(*this);
+            MWBase::Environment::get().getDialogueManager()->keywordSelected(topicId, mCallback.get());
+        }
         updateTopics();
     }
 

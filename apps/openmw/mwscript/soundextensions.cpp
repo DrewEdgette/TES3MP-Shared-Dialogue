@@ -23,6 +23,7 @@
 #include "../mwbase/world.hpp"
 #include "../mwbase/soundmanager.hpp"
 #include "../mwbase/windowmanager.hpp"
+#include "../mwgui/dialogue.hpp"
 
 #include "../mwworld/inventorystore.hpp"
 #include "../mwworld/class.hpp"
@@ -52,7 +53,12 @@ namespace MWScript
                     std::string text = runtime.getStringLiteral (runtime[0].mInteger);
                     runtime.pop();
 
-                    MWBase::Environment::get().getSoundManager()->say (ptr, file);
+                    auto* windows = MWBase::Environment::get().getWindowManager();
+                    // VoV's legacy ESP uses Say in greeting/topic result scripts.
+                    // Listeners receive only an optional sound name, never this script.
+                    if (context.getContextType() != Interpreter::Context::DIALOGUE ||
+                        !windows->getDialogueWindow()->saySharedDialogue(ptr, file))
+                        MWBase::Environment::get().getSoundManager()->say (ptr, file);
 
                     if (MWBase::Environment::get().getWindowManager ()->getSubtitlesEnabled())
                         context.messageBox (text);

@@ -110,6 +110,37 @@ int main()
 
     // Decode a second packet into the same object; old history must not survive.
     message = dialogue::Message();
+    message.action = dialogue::Action::Voice;
+    message.session = 123456789;
+    message.response = 2;
+    message.voice = "Vo/AIV/Imperial/M/general darius/1743727191259888357.mp3";
+    RakNet::BitStream speech;
+    writer.serialize(&speech, true, message);
+    CHECK(writer.isPacketValid());
+    speech.IgnoreBytes(BasePacket::headerSize());
+    reader.serialize(&speech, false, target);
+    CHECK(reader.isPacketValid());
+    CHECK(target.voice == message.voice && target.response == 2);
+    for (unsigned int bytes = BasePacket::headerSize(); bytes < speech.GetNumberOfBytesUsed(); ++bytes)
+    {
+        RakNet::BitStream truncated(speech.GetData(), bytes, false);
+        truncated.IgnoreBytes(BasePacket::headerSize());
+        reader.serialize(&truncated, false, target);
+        CHECK(!reader.isPacketValid());
+    }
+    for (const auto& path : {std::string(), std::string("../voice.mp3"),
+        std::string("C:\\voice.mp3"), std::string(dialogue::MaxVoicePath + 1, 'x')})
+    {
+        message.voice = path;
+        RakNet::BitStream invalid;
+        writer.serialize(&invalid, true, message);
+        CHECK(!writer.isPacketValid());
+        invalid.IgnoreBytes(BasePacket::headerSize());
+        reader.serialize(&invalid, false, target);
+        CHECK(!reader.isPacketValid());
+    }
+
+    message = dialogue::Message();
     message.action = dialogue::Action::End;
     message.session = 999;
     RakNet::BitStream end;
@@ -121,5 +152,6 @@ int main()
     CHECK(target.choices.empty());
     CHECK(target.topics.empty());
     CHECK(target.session == 999);
+    CHECK(target.voice.empty() && target.response == 0);
     std::cout << checks << " production packet checks passed\n";
 }

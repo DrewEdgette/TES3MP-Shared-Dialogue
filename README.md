@@ -5,7 +5,7 @@ players follow the same NPC conversation in Morrowind. One player talks and ever
 nearby sees the full dialogue as it happens, including blue keywords and available
 topics, without advancing the conversation or repeating its quest scripts.
 
-Based on TES3MP **0.8.1 / OpenMW 0.47.0**. The planned first public version is **0.1.0**,
+Based on TES3MP **0.8.1 / OpenMW 0.47.0**. The current development version is **0.2.0**,
 targeting Windows x64. This is a client and server engine modification, not an
 ESP or a server-only Lua mod.
 
@@ -22,9 +22,9 @@ are not playable installations.
 
 | Package | Who needs it? |
 | --- | --- |
-| `tes3mp-shared-dialogue-0.1.0-windows-x64-client.zip` | Every joining player |
-| `tes3mp-shared-dialogue-0.1.0-windows-x64-client-server.zip` | The host, including their client |
-| `tes3mp-shared-dialogue-0.1.0-sources.zip` | Source and build materials for developers and redistributors |
+| `tes3mp-shared-dialogue-0.2.0-windows-x64-client.zip` | Every joining player |
+| `tes3mp-shared-dialogue-0.2.0-windows-x64-client-server.zip` | The host, including their client |
+| `tes3mp-shared-dialogue-0.2.0-sources.zip` | Source and build materials for developers and redistributors |
 
 The Windows build uses [FFmpeg](https://ffmpeg.org) under the LGPLv2.1 or later.
 Its matching source is included in the `sources.zip` asset on the same
@@ -51,14 +51,21 @@ required content/mod list.
 - Spectators can leave at any time. Activate the same NPC to rejoin while the
   speaker is still talking, with the complete current history restored.
 - An NPC already in a conversation admits additional players as spectators.
+- Optional Voices of Vvardenfell support: listeners hear voiced greetings and
+  selected topics when they have the same local audio files. Missing files and
+  unvoiced responses stay silent; rejoining never replays earlier speech.
 - Barter, travel, enchanting and other services display an activity status for
   listeners while the speaker uses the normal service window.
 - Goodbye, cell changes, death and disconnect clean up the relevant sessions.
   A spectator leaving does not end the speaker's conversation.
 
 Automatic invitations are skipped while a player is already in another menu
-or conversation. They can activate the NPC to join later. Voice audio and service
-contents are not streamed. Journal sharing remains controlled by server scripts.
+or conversation. They can activate the NPC to join later. Audio files and service
+contents are not transferred. Journal sharing remains controlled by server scripts.
+
+Voice support targets VoV's legacy `Say`-based ESP, including
+`VoV-uniqueDialogOnly.esp`. VoV is optional and is not bundled. See
+[voice compatibility](docs/shared-dialogue/configuration.md#optional-voices-of-vvardenfell).
 
 ## Configuration
 

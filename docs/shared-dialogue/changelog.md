@@ -1,5 +1,14 @@
 # Shared Dialogue changelog
 
+## 0.2.0 — unreleased
+
+- Optional VoV speech for spectators during the initiator's greeting and topic selections.
+- Only local filenames are relayed; no voice files or result scripts are transferred.
+- Missing files are silently skipped, and unvoiced responses require no audio.
+- Live response IDs reject stale/duplicate speech; rejoining restores only text.
+- Speech stops on the next response, leaving, service transitions or session closure.
+- Matching client and server required: `0.8.1-shared-dialogue.2`, protocol **13**.
+
 ## 0.1.0 — first public release candidate
 
 Based on TES3MP 0.8.1 / OpenMW 0.47.0, commit

@@ -27,9 +27,9 @@ After the [build and tests](building.md):
 
 Outputs go to `dist/release`:
 
-- `tes3mp-shared-dialogue-0.1.0-windows-x64-client.zip`
-- `tes3mp-shared-dialogue-0.1.0-windows-x64-client-server.zip`
-- `tes3mp-shared-dialogue-0.1.0-sources.zip`
+- `tes3mp-shared-dialogue-0.2.0-windows-x64-client.zip`
+- `tes3mp-shared-dialogue-0.2.0-windows-x64-client-server.zip`
+- `tes3mp-shared-dialogue-0.2.0-sources.zip`
 - `SHA256SUMS.txt`
 
 The script audits runtime imports, verifies source downloads, packages the full
@@ -46,7 +46,7 @@ the ZIPs are local inspection copies of this metadata.
 1. Review and commit the intended source/documentation changes. Update
    `scripts/shared-dialogue/release.json`, the version header, changelog and
    compatibility notes together if the version changes. The first intended tag
-   is `sd-v0.1.0`.
+   is `sd-v0.2.0`.
 2. Rebuild from that exact clean commit and regenerate the packages. This makes
    `resources/version` and build metadata identify the release commit. Run
    repository checks, session/packet tests, the live fixture and runtime tests;

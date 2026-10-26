@@ -12,13 +12,14 @@
 namespace mwmp { namespace dialogue
 {
     // Presentation only: no topic IDs, script source, or executable choices.
-    enum class Action : unsigned char { Request, Open, Append, State, Leave, End, Denied };
+    enum class Action : unsigned char { Request, Open, Append, State, Leave, End, Denied, Voice };
     constexpr std::size_t MaxString = 32768;
     constexpr std::size_t MaxEntries = 4096;
     constexpr std::size_t MaxHistoryBytes = 4 * 1024 * 1024;
     constexpr std::size_t MaxChoices = 128;
     constexpr std::size_t MaxTopics = 4096;
     constexpr std::size_t MaxTopicBytes = 256 * 1024;
+    constexpr std::size_t MaxVoicePath = 1024;
     constexpr float DefaultRadius = 420.f;
 
     inline bool validTopics(const std::vector<std::string>& topics)
@@ -66,6 +67,50 @@ namespace mwmp { namespace dialogue
         bool valid() const { return title.size() <= MaxString && text.size() <= MaxString; }
     };
 
+    // Only relative names below the game's Sound directory, never host paths.
+    inline bool validVoicePath(const std::string& path)
+    {
+        if (path.empty() || path.size() > MaxVoicePath) return false;
+        for (unsigned char c : path) if (c < 32 || c == ':' || c == 127) return false;
+        std::size_t start = 0;
+        while (start < path.size())
+        {
+            auto end = path.find_first_of("/\\", start);
+            if (end == std::string::npos) end = path.size();
+            const auto part = path.substr(start, end - start);
+            if (part.empty() || part == "." || part == "..") return false;
+            start = end + 1;
+        }
+        return path.back() != '/' && path.back() != '\\';
+    }
+
+    // Speech is a live event, not transcript history. A restored response is
+    // deliberately ineligible, including when its voice packet arrives later.
+    struct VoiceState
+    {
+        std::uint32_t response = 0;
+        bool live = false, played = false;
+        void append(const Entry& entry)
+        {
+            if (entry.message) return;
+            ++response;
+            live = true;
+            played = false;
+        }
+        void restore(const std::vector<Entry>& history)
+        {
+            *this = VoiceState();
+            for (const auto& entry : history) append(entry);
+            live = false;
+        }
+        bool accept(std::uint32_t number, const std::string& path)
+        {
+            if (!live || played || number != response || !validVoicePath(path)) return false;
+            played = true;
+            return true;
+        }
+    };
+
     struct Message
     {
         Action action = Action::Request;
@@ -75,6 +120,8 @@ namespace mwmp { namespace dialogue
         std::string speaker, status;
         std::vector<Entry> entries;
         std::vector<std::string> choices, topics;
+        std::uint32_t response = 0;
+        std::string voice; // Optional live Voice action only; no audio bytes.
     };
 
     struct Session
@@ -86,6 +133,7 @@ namespace mwmp { namespace dialogue
         std::vector<std::string> choices, topics;
         std::set<std::uint64_t> listeners;
         std::size_t bytes = 0;
+        VoiceState voice;
     };
 
     // Single-threaded server authority. Kept independent of the renderer and RakNet
@@ -149,7 +197,13 @@ namespace mwmp { namespace dialogue
                 return false;
             session->history.push_back(entry);
             session->bytes += entry.bytes();
+            session->voice.append(entry);
             return true;
+        }
+        bool voice(std::uint64_t id, std::uint64_t player, std::uint32_t response, const std::string& path)
+        {
+            auto* session = find(id);
+            return session && session->owner == player && session->voice.accept(response, path);
         }
         bool state(std::uint64_t id, std::uint64_t player,
             const std::string& status, const std::vector<std::string>& choices,
