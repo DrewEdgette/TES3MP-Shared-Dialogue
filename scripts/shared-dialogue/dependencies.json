@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "archives": [
+    {
+      "file": "Bullet-2.89-msvc2015-win64-double.7z",
+      "url": "https://gitlab.com/OpenMW/openmw-deps/-/raw/main/windows/Bullet-2.89-msvc2015-win64-double.7z",
+      "sha256": "4dba9499e5d987eced07a897e03b985047128e69b97efde52c5dac88bfa92173",
+      "kind": "7z",
+      "destination": ".",
+      "probe": "Bullet-2.89-msvc2015-win64-double/lib/BulletDynamics.lib"
+    },
+    {
+      "file": "MyGUI-3.4.0-msvc2019-win64.7z",
+      "url": "https://gitlab.com/OpenMW/openmw-deps/-/raw/main/windows/MyGUI-3.4.0-msvc2019-win64.7z",
+      "sha256": "b022a668f601c0e0745d8ffcf9a2cab7bc4e2257e6bef946c7871fa7658d20f9",
+      "kind": "7z",
+      "destination": ".",
+      "probe": "MyGUI-3.4.0-msvc2019-win64/lib/RelWithDebInfo/MyGUIEngine.lib"
+    },
+    {
+      "file": "SDL2-2.0.12.zip",
+      "url": "https://gitlab.com/OpenMW/openmw-deps/-/raw/main/windows/SDL2-2.0.12.zip",
+      "sha256": "00c55a597cebdb9a4eb2723f2ad2387a4d7fd605e222c69b46099b15d5d8b32d",
+      "kind": "7z",
+      "destination": ".",
+      "probe": "SDL2-2.0.12/lib/x64/SDL2.dll"
+    },
+    {
+      "file": "lz4_win64_v1_9_2.7z",
+      "url": "https://gitlab.com/OpenMW/openmw-deps/-/raw/main/windows/lz4_win64_v1_9_2.7z",
+      "sha256": "332dca78917e0b2186f93ce699738bb7289d5c29a78bb55b7e7ff80450ce666a",
+      "kind": "7z",
+      "destination": ".",
+      "probe": "lib/liblz4.lib"
+    },
+    {
+      "file": "innoextract.zip",
+      "url": "https://constexpr.org/innoextract/files/innoextract-1.9-windows.zip",
+      "sha256": "6989342c9b026a00a72a38f23b62a8e6a22cc5de69805cf47d68ac2fec993065",
+      "kind": "7z",
+      "destination": "innoextract",
+      "probe": "innoextract/innoextract.exe"
+    },
+    {
+      "file": "boost-prebuilt.exe",
+      "url": "https://sourceforge.net/projects/boost/files/boost-binaries/1.71.0/boost_1_71_0-msvc-14.2-64.exe/download",
+      "sha256": "bcfbf806f41d739b7cdb4154b8ce0df964cf7a9dc8f5565b4f680ca686a3bcb9",
+      "kind": "inno",
+      "destination": "boost-prebuilt",
+      "probe": "boost-prebuilt/app/boost/version.hpp"
+    }
+  ],
+  "sources": [
+    {
+      "directory": "CrabNet",
+      "url": "https://github.com/TES3MP/CrabNet.git",
+      "commit": "19e66190e83f53bcdcbcd6513238ed2e54878a21",
+      "submodules": false
+    },
+    {
+      "directory": "LuaJIT",
+      "url": "https://github.com/LuaJIT/LuaJIT.git",
+      "commit": "a4c064539ea931274d407e1249b4bb575424a0f4",
+      "submodules": false
+    },
+    {
+      "directory": "Lua-io2",
+      "url": "https://github.com/TES3MP/Lua-io2.git",
+      "commit": "4f132ff9d0208267b37936dd17253bb540970489",
+      "submodules": true
+    },
+    {
+      "directory": "CoreScripts",
+      "url": "https://github.com/TES3MP/CoreScripts.git",
+      "commit": "3e397a11eaf7d0d4ff08df4bb9925e67748b4db8",
+      "submodules": false
+    }
+  ]
+}

@@ -43,6 +43,9 @@ namespace Gui
         std::string getItemNameAt(unsigned int at); ///< \attention if there are separators, this method will return "" at the place where the separator is
         void clear();
 
+        /// Disable item activation while preserving scrolling.
+        void setSelectionEnabled(bool enabled);
+
         MyGUI::Button* getItemWidget(const std::string& name);
         ///< get widget for an item name, useful to set up tooltip
 
@@ -66,6 +69,7 @@ namespace Gui
         std::vector<std::string> mItems;
 
         int mItemHeight; // height of all items
+        bool mSelectionEnabled = true;
     };
 }
 

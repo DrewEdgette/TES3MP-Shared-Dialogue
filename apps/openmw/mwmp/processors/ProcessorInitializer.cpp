@@ -47,6 +47,7 @@
 #include "player/ProcessorPlayerSpellsActive.hpp"
 #include "player/ProcessorPlayerStatsDynamic.hpp"
 #include "player/ProcessorPlayerTopic.hpp"
+#include "player/ProcessorPlayerDialogue.hpp"
 
 #include "ObjectProcessor.hpp"
 #include "object/ProcessorConsoleCommand.hpp"
@@ -154,6 +155,7 @@ void ProcessorInitializer()
     PlayerProcessor::AddProcessor(new ProcessorPlayerSpellsActive());
     PlayerProcessor::AddProcessor(new ProcessorPlayerStatsDynamic());
     PlayerProcessor::AddProcessor(new ProcessorPlayerTopic());
+    PlayerProcessor::AddProcessor(new ProcessorPlayerDialogue());
 
     ObjectProcessor::AddProcessor(new ProcessorConsoleCommand());
     ObjectProcessor::AddProcessor(new ProcessorContainer());

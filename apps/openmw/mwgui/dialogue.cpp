@@ -137,8 +137,8 @@ namespace MWGui
 
     // --------------------------------------------------------------------------------------------------
 
-    Response::Response(const std::string &text, const std::string &title, bool needMargin)
-        : mTitle(title), mNeedMargin(needMargin)
+    Response::Response(const std::string &text, const std::string &title, bool needMargin, bool interactive)
+        : mTitle(title), mNeedMargin(needMargin), mInteractive(interactive)
     {
         mText = text;
     }
@@ -177,7 +177,7 @@ namespace MWGui
                         getTranslationDataStorage().topicStandardForm(link);
 
                 std::string displayName = link;
-                while (displayName[displayName.size()-1] == '*')
+                while (!displayName.empty() && displayName[displayName.size()-1] == '*')
                     displayName.erase(displayName.size()-1, 1);
 
                 text.replace(pos_begin, pos_end+1-pos_begin, displayName);
@@ -200,9 +200,10 @@ namespace MWGui
             for (auto& hyperLink : hyperLinks)
             {
                 intptr_t topicId = hyperLink.second;
-                BookTypesetter::Style* hotStyle = typesetter->createHotStyle (style, textColours.link,
+                BookTypesetter::Style* hotStyle = mInteractive ? typesetter->createHotStyle (style, textColours.link,
                                                                               textColours.linkOver, textColours.linkPressed,
-                                                                              topicId);
+                                                                              topicId) :
+                    typesetter->createStyle("", textColours.link, false);
                 if (formatted < hyperLink.first.first)
                     typesetter->write(style, formatted, hyperLink.first.first);
                 typesetter->write(hotStyle, hyperLink.first.first, hyperLink.first.second);
@@ -239,7 +240,8 @@ namespace MWGui
 
 
         if (topicId)
-            style = typesetter->createHotStyle (style, textColours.link, textColours.linkOver, textColours.linkPressed, topicId);
+            style = mInteractive ? typesetter->createHotStyle (style, textColours.link, textColours.linkOver,
+                textColours.linkPressed, topicId) : typesetter->createStyle("", textColours.link, false);
         typesetter->write (style, begin, end);
     }
 
@@ -332,6 +334,12 @@ namespace MWGui
 
     bool DialogueWindow::exit()
     {
+        if (mSpectator || mWaitingForShared)
+        {
+            finishSharedDialogue();
+            resetReference();
+            return true;
+        }
         if ((MWBase::Environment::get().getDialogueManager()->isInChoice()))
         {
             return false;
@@ -446,6 +454,8 @@ namespace MWGui
     */
     void DialogueWindow::sendDialogueChoicePacket(const std::string& topic)
     {
+        if (!isSharedDialogueOwner() || mGoodbye ||
+            MWBase::Environment::get().getDialogueManager()->isInChoice()) return;
         mwmp::ObjectList* objectList = mwmp::Main::get().getNetworking()->getObjectList();
         objectList->reset();
         objectList->packetOrigin = mwmp::CLIENT_GAMEPLAY;
@@ -463,6 +473,8 @@ namespace MWGui
     */
     void DialogueWindow::activateDialogueChoice(unsigned char dialogueChoiceType, std::string topic)
     {
+        if (!isSharedDialogueOwner() || mGoodbye ||
+            MWBase::Environment::get().getDialogueManager()->isInChoice()) return;
         if (dialogueChoiceType == mwmp::DialogueChoiceType::TOPIC)
         {
             onTopicActivated(topic);
@@ -510,9 +522,21 @@ namespace MWGui
 
     void DialogueWindow::setPtr(const MWWorld::Ptr& actor)
     {
-        if (!actor.getClass().isActor())
+        if (actor.isEmpty() || !actor.getClass().isActor())
         {
             Log(Debug::Warning) << "Warning: can not talk with non-actor object.";
+            return;
+        }
+
+        if (beginSharedDialogue(actor)) return;
+        if (mSpectator)
+        {
+            mPtr = actor;
+            mGoodbye = false;
+            setTitle(actor.getClass().getName(actor) + " (listening)");
+            updateTopicsPane();
+            updateDisposition();
+            MWBase::Environment::get().getWindowManager()->setKeyFocusWidget(mGoodbyeButton);
             return;
         }
 
@@ -594,6 +618,7 @@ namespace MWGui
     {
         if (MWBase::Environment::get().getWindowManager()->containsMode(GM_Dialogue))
             return;
+        finishSharedDialogue();
         // Reset history
         for (DialogueText* text : mHistoryContents)
             delete text;
@@ -617,6 +642,30 @@ namespace MWGui
             mDeleteLater.push_back(linkPair.second);
         mTopicLinks.clear();
         mKeywordSearch.clear();
+
+        mTopicsList->setSelectionEnabled(!mSpectator && !mWaitingForShared);
+
+        if (mSpectator || mWaitingForShared)
+        {
+            if (!mSharedSpeaker.empty()) mTopicsList->addItem("Listening to " + mSharedSpeaker);
+            if (!mSharedStatus.empty()) mTopicsList->addItem(mSharedStatus);
+            if (!mSharedTopics.empty()) mTopicsList->addSeparator();
+            for (const auto& keyword : mSharedTopics)
+            {
+                mTopicsList->addItem(keyword);
+                const std::string topicId = Misc::StringUtils::lowerCase(keyword);
+                if (mTopicLinks.count(topicId)) continue;
+                // Used only to identify highlighted words. No action is attached,
+                // and spectator responses use plain blue styles without link IDs.
+                Topic* topic = new Topic(keyword);
+                mTopicLinks[topicId] = topic;
+                mKeywordSearch.seed(topicId, intptr_t(topic));
+            }
+            mTopicsList->setEnabled(true); // Keep the scrollbar and mouse wheel usable.
+            mTopicsList->adjustSize();
+            updateHistory();
+            return;
+        }
 
         int services = mPtr.getClass().getServices(mPtr);
 
@@ -709,7 +758,17 @@ namespace MWGui
         typesetter->sectionBreak(9);
         // choices
         const TextColours& textColours = MWBase::Environment::get().getWindowManager()->getTextColours();
-        mChoices = MWBase::Environment::get().getDialogueManager()->getChoices();
+        mChoices = mSpectator ? std::vector<std::pair<std::string, int>>() :
+            MWBase::Environment::get().getDialogueManager()->getChoices();
+        if (mSpectator)
+        {
+            auto* style = typesetter->createStyle("", textColours.answer, false);
+            for (const auto& choice : mSharedChoices)
+            {
+                typesetter->lineBreak();
+                typesetter->write(style, to_utf8_span(choice.c_str()));
+            }
+        }
         for (std::pair<std::string, int>& choice : mChoices)
         {
             Choice* link = new Choice(choice.second);
@@ -723,7 +782,7 @@ namespace MWGui
             typesetter->write(questionStyle, to_utf8_span(choice.first.c_str()));
         }
 
-        mGoodbye = MWBase::Environment::get().getDialogueManager()->isGoodbye();
+        mGoodbye = !mSpectator && MWBase::Environment::get().getDialogueManager()->isGoodbye();
         if (mGoodbye)
         {
             Goodbye* link = new Goodbye();
@@ -757,23 +816,25 @@ namespace MWGui
             onScrollbarMoved(mScrollBar, 0);
         }
 
-        bool goodbyeEnabled = !MWBase::Environment::get().getDialogueManager()->isInChoice() || mGoodbye;
+        bool goodbyeEnabled = mSpectator || !MWBase::Environment::get().getDialogueManager()->isInChoice() || mGoodbye;
         bool goodbyeWasEnabled = mGoodbyeButton->getEnabled();
         mGoodbyeButton->setEnabled(goodbyeEnabled);
         if (goodbyeEnabled && !goodbyeWasEnabled)
             MWBase::Environment::get().getWindowManager()->setKeyFocusWidget(mGoodbyeButton);
 
-        bool topicsEnabled = !MWBase::Environment::get().getDialogueManager()->isInChoice() && !mGoodbye;
+        bool topicsEnabled = mSpectator || (!MWBase::Environment::get().getDialogueManager()->isInChoice() && !mGoodbye);
         mTopicsList->setEnabled(topicsEnabled);
     }
 
     void DialogueWindow::notifyLinkClicked (TypesetBook::InteractiveId link)
     {
+        if (mSpectator || mWaitingForShared) return;
         reinterpret_cast<Link*>(link)->activated();
     }
 
     void DialogueWindow::onTopicActivated(const std::string &topicId)
     {
+        if (mSpectator || mWaitingForShared) return;
         if (mGoodbye)
             return;
 
@@ -783,17 +844,21 @@ namespace MWGui
 
     void DialogueWindow::onChoiceActivated(int id)
     {
+        if (!isSharedDialogueOwner()) return;
         if (mGoodbye)
         {
             onGoodbyeActivated();
             return;
         }
+        for (const auto& choice : MWBase::Environment::get().getDialogueManager()->getChoices())
+            if (choice.second == id) { addMessageBox("Choice: " + choice.first); break; }
         MWBase::Environment::get().getDialogueManager()->questionAnswered(id, mCallback.get());
         updateTopics();
     }
 
     void DialogueWindow::onGoodbyeActivated()
     {
+        if (mSpectator || mWaitingForShared) { onByeClicked(nullptr); return; }
         MWBase::Environment::get().getDialogueManager()->goodbyeSelected();
         MWBase::Environment::get().getWindowManager()->removeGuiMode(MWGui::GM_Dialogue);
         resetReference();
@@ -806,20 +871,31 @@ namespace MWGui
 
     void DialogueWindow::addResponse(const std::string &title, const std::string &text, bool needMargin)
     {
+        if (mSpectator || mWaitingForShared) return;
         mHistoryContents.push_back(new Response(text, title, needMargin));
         updateHistory();
+        mwmp::dialogue::Entry entry;
+        entry.title = title;
+        entry.text = text;
+        entry.margin = needMargin;
+        shareEntry(entry);
     }
 
     void DialogueWindow::addMessageBox(const std::string& text)
     {
+        if (mSpectator || mWaitingForShared) return;
         mHistoryContents.push_back(new Message(text));
         updateHistory();
+        mwmp::dialogue::Entry entry;
+        entry.text = text;
+        entry.message = true;
+        shareEntry(entry);
     }
 
     void DialogueWindow::updateDisposition()
     {
         bool dispositionVisible = false;
-        if (!mPtr.isEmpty() && mPtr.getClass().isNpc())
+        if (!mSpectator && !mPtr.isEmpty() && mPtr.getClass().isNpc())
         {
             dispositionVisible = true;
             mDispositionBar->setProgressRange(100);
@@ -859,6 +935,8 @@ namespace MWGui
         updateDisposition();
         deleteLater();
 
+        if (mSpectator || mWaitingForShared) return;
+
         if (mChoices != MWBase::Environment::get().getDialogueManager()->getChoices()
                 || mGoodbye != MWBase::Environment::get().getDialogueManager()->isGoodbye())
             updateHistory();
@@ -866,6 +944,7 @@ namespace MWGui
 
     void DialogueWindow::updateTopicFormat()
     {
+        if (mSpectator || mWaitingForShared) return;
         if (!Settings::Manager::getBool("color topic enable", "GUI"))
             return;
 
@@ -886,6 +965,7 @@ namespace MWGui
 
     void DialogueWindow::updateTopics()
     {
+        if (mSpectator || mWaitingForShared) return;
         // Topic formatting needs to be updated regardless of whether the topic list has changed
         if (!setKeywords(MWBase::Environment::get().getDialogueManager()->getAvailableTopics()))
             updateTopicFormat();

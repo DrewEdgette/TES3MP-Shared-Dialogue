@@ -1,0 +1,11 @@
+{
+  "name": "TES3MP Shared Dialogue",
+  "version": "0.1.0",
+  "tag": "sd-v0.1.0",
+  "engineVersion": "0.8.1-shared-dialogue.1",
+  "upstreamVersion": "0.8.1",
+  "upstreamCommit": "49be5b6405d6ab427e06ed350cf76c715a1f3bdd",
+  "protocol": 12,
+  "defaultRadius": 420,
+  "prerelease": true
+}

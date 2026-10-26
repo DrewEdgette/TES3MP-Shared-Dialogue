@@ -85,3 +85,14 @@ moc_*.cxx
 *.[ao]
 *.so
 venv/
+
+## Shared Dialogue local builds, packages, fixtures, and private game data
+/dist/
+/portable/
+/network-test/
+/ui-test/
+/server-scripts/
+/Data Files/
+*.log
+*.pid
+/shared-dialogue-validation/

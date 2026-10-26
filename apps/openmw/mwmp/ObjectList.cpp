@@ -1018,6 +1018,10 @@ void ObjectList::makeDialogueChoices(MWWorld::CellStore* cellStore)
 
             if (ptrFound.getClass().isActor())
             {
+                auto* dialogueWindow = MWBase::Environment::get().getWindowManager()->getDialogueWindow();
+                if (!dialogueWindow->isSharedDialogueOwner() || dialogueWindow->getPtr() != ptrFound ||
+                    dialogueWindow->getSharedDialogueSession() != baseObject.dialogueSession)
+                    continue;
                 // Ensure the dialogue window has the correct Ptr set for it
                 if (MWBase::Environment::get().getWindowManager()->containsMode(MWGui::GM_Dialogue))
                 {
@@ -1328,6 +1332,7 @@ void ObjectList::addObjectDialogueChoice(const MWWorld::Ptr& ptr, std::string di
     cell = *ptr.getCell()->getCell();
 
     mwmp::BaseObject baseObject = getBaseObjectFromPtr(ptr);
+    baseObject.dialogueSession = MWBase::Environment::get().getWindowManager()->getDialogueWindow()->getSharedDialogueSession();
 
     const MWWorld::Store<ESM::GameSetting>& gmst = MWBase::Environment::get().getWorld()->getStore().get<ESM::GameSetting>();
 

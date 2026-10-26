@@ -17,6 +17,7 @@
 #include <csignal>
 
 #include "Networking.hpp"
+#include "SharedDialogue.hpp"
 #include "MasterClient.hpp"
 #include "Cell.hpp"
 #include "CellController.hpp"
@@ -63,6 +64,7 @@ Networking::Networking(RakNet::RakPeerInterface *peer) : mclient(nullptr)
     serverPassword = TES3MP_DEFAULT_PASSW;
 
     ProcessorInitializer();
+    SharedDialogue::get().configure();
 }
 
 Networking::~Networking()
@@ -381,6 +383,7 @@ void Networking::newPlayer(RakNet::RakNetGUID guid)
 
 void Networking::disconnectPlayer(RakNet::RakNetGUID guid)
 {
+    SharedDialogue::get().disconnect(guid.g);
     Player *player = Players::getPlayer(guid);
     if (!player)
         return;
@@ -556,7 +559,8 @@ int Networking::mainLoop()
                     break;
                 default:
                 {
-                    RakNet::BitStream bsIn(&packet->data[1], packet->length, false);
+                    if (packet->length < BasePacket::headerSize()) break;
+                    RakNet::BitStream bsIn(&packet->data[1], packet->length - 1, false);
                     bsIn.IgnoreBytes((unsigned int) RakNet::RakNetGUID::size()); // Ignore GUID from received packet
 
 
@@ -569,6 +573,7 @@ int Networking::mainLoop()
             }
         }
         TimerAPI::Tick();
+        SharedDialogue::get().update();
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 

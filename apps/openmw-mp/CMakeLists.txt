@@ -46,6 +46,7 @@ set(SERVER
     main.cpp
     Player.cpp
     Networking.cpp
+    SharedDialogue.cpp
     MasterClient.cpp
     Cell.cpp
     CellController.cpp

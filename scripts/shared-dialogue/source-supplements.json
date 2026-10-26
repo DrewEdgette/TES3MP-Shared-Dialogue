@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "archives": [
+    {
+      "name": "Boost",
+      "version": "1.71.0",
+      "file": "boost_1_71_0.tar.bz2",
+      "url": "https://archives.boost.io/release/1.71.0/source/boost_1_71_0.tar.bz2",
+      "sha256": "d73a8da01e8bf8c7eda40b4c84915071a8c8a0df4a6734537ddde4a8580524ee"
+    },
+    {
+      "name": "Bullet",
+      "version": "2.89",
+      "file": "bullet-2.89-source.tar.gz",
+      "url": "https://codeload.github.com/bulletphysics/bullet3/tar.gz/refs/tags/2.89",
+      "sha256": "621b36e91c0371933f3c2156db22c083383164881d2a6b84636759dc4cbb0bb8"
+    },
+    {
+      "name": "MyGUI",
+      "version": "3.4.0",
+      "file": "mygui-3.4.0-source.tar.gz",
+      "url": "https://codeload.github.com/MyGUI/mygui/tar.gz/refs/tags/MyGUI3.4.0",
+      "sha256": "d1d5f294670ae71f7200ed4b30859018281d8cfd45d6a38d18b97a4aba604c42"
+    },
+    {
+      "name": "SDL2",
+      "version": "2.0.12",
+      "file": "SDL2-2.0.12-source.tar.gz",
+      "url": "https://libsdl.org/release/SDL2-2.0.12.tar.gz",
+      "sha256": "349268f695c02efbc9b9148a70b85e58cefbbf704abd3e91be654db7f1e2c863"
+    },
+    {
+      "name": "LZ4",
+      "version": "1.9.2",
+      "file": "lz4-1.9.2-source.tar.gz",
+      "url": "https://codeload.github.com/lz4/lz4/tar.gz/refs/tags/v1.9.2",
+      "sha256": "658ba6191fa44c92280d4aa2c271b0f4fbc0e34d249578dd05e50e76d0e5efcc"
+    },
+    {
+      "name": "RecastNavigation",
+      "version": "e75adf86f91eb3082220085e42dda62679f9a3ea",
+      "file": "recastnavigation-e75adf86.zip",
+      "url": "https://codeload.github.com/recastnavigation/recastnavigation/zip/e75adf86f91eb3082220085e42dda62679f9a3ea",
+      "sha256": "d3339aaea1d81307bcac2bece176c5359ed5f8c8f9721fc360d28f82f9119253"
+    }
+  ]
+}

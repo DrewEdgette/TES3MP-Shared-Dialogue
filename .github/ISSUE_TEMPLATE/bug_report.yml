@@ -1,0 +1,29 @@
+name: Shared Dialogue bug
+description: Report a problem in this fork's dialogue feature or build.
+body:
+  - type: input
+    id: versions
+    attributes:
+      label: Client and server versions
+      description: Include both full version strings and the Shared Dialogue suffix.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Operating system and server scripts
+      description: Include CoreScripts version and relevant custom scripts.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Include NPC, cell, topic, mods, speaker/listener roles, and expected versus actual behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs or screenshots
+      description: Include relevant excerpts only. Remove passwords, addresses and account data.

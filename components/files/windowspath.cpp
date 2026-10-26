@@ -43,6 +43,9 @@ WindowsPath::WindowsPath(const std::string& application_name)
 
 boost::filesystem::path WindowsPath::getUserConfigPath() const
 {
+    // Opt-in isolation for testing a custom client beside an existing installation.
+    if (boost::filesystem::exists(getLocalPath() / "tes3mp-portable.txt"))
+        return getLocalPath() / "user";
     boost::filesystem::path userPath(".");
 
     WCHAR path[MAX_PATH + 1];
@@ -64,6 +67,8 @@ boost::filesystem::path WindowsPath::getUserDataPath() const
 
 boost::filesystem::path WindowsPath::getGlobalConfigPath() const
 {
+    if (boost::filesystem::exists(getLocalPath() / "tes3mp-portable.txt"))
+        return getLocalPath();
     boost::filesystem::path globalPath(".");
 
     WCHAR path[MAX_PATH + 1];
@@ -104,6 +109,8 @@ boost::filesystem::path WindowsPath::getCachePath() const
 
 boost::filesystem::path WindowsPath::getInstallPath() const
 {
+    if (boost::filesystem::exists(getLocalPath() / "tes3mp-portable.txt"))
+        return boost::filesystem::path();
     boost::filesystem::path installPath("");
 
     HKEY hKey;

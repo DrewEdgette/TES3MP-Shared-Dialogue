@@ -70,8 +70,9 @@ namespace Gui
                 button->getSubWidgetText()->setWordWrap(true);
                 button->getSubWidgetText()->setTextAlign(MyGUI::Align::Left);
                 button->eventMouseWheel += MyGUI::newDelegate(this, &MWList::onMouseWheelMoved);
-                button->eventMouseButtonClick += MyGUI::newDelegate(this, &MWList::onItemSelected);
-                button->setNeedKeyFocus(true);
+                if (mSelectionEnabled)
+                    button->eventMouseButtonClick += MyGUI::newDelegate(this, &MWList::onItemSelected);
+                button->setNeedKeyFocus(mSelectionEnabled);
 
                 int height = button->getTextSize().height;
                 button->setSize(MyGUI::IntSize(button->getSize().width, height));
@@ -146,10 +147,18 @@ namespace Gui
 
     void MWList::onItemSelected(MyGUI::Widget* _sender)
     {
+        if (!mSelectionEnabled) return;
         std::string name = _sender->castType<MyGUI::Button>()->getCaption();
         int id = *_sender->getUserData<int>();
         eventItemSelected(name, id);
         eventWidgetSelected(_sender);
+    }
+
+    void MWList::setSelectionEnabled(bool enabled)
+    {
+        if (mSelectionEnabled == enabled) return;
+        mSelectionEnabled = enabled;
+        if (mScrollView) redraw();
     }
 
     MyGUI::Button *MWList::getItemWidget(const std::string& name)

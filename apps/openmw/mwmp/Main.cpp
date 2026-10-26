@@ -16,6 +16,7 @@
 #include "../mwdialogue/dialoguemanagerimp.hpp"
 
 #include "../mwgui/windowmanagerimp.hpp"
+#include "../mwgui/dialogue.hpp"
 
 #include "../mwinput/inputmanagerimp.hpp"
 
@@ -187,6 +188,8 @@ void Main::frame(float dt)
     get().updateWorld(dt);
 
     get().getGUIController()->update(dt);
+    if (get().getLocalPlayer()->isLoggedIn())
+        MWBase::Environment::get().getWindowManager()->getDialogueWindow()->updateSharedDialogue(dt);
 }
 
 void Main::updateWorld(float dt) const

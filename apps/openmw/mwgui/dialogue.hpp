@@ -9,6 +9,7 @@
 #include "../mwdialogue/keywordsearch.hpp"
 
 #include <MyGUI_Delegate.h>
+#include <components/openmw-mp/Dialogue.hpp>
 
 namespace Gui
 {
@@ -87,11 +88,11 @@ namespace MWGui
 
     struct Response : DialogueText
     {
-        Response(const std::string& text, const std::string& title = "", bool needMargin = true);
+        Response(const std::string& text, const std::string& title = "", bool needMargin = true, bool interactive = true);
         void write (BookTypesetter::Ptr typesetter, KeywordSearchT* keywordSearch, std::map<std::string, Link*>& topicLinks) const override;
         void addTopicLink (BookTypesetter::Ptr typesetter, intptr_t topicId, size_t begin, size_t end) const;
         std::string mTitle;
-        bool mNeedMargin;
+        bool mNeedMargin, mInteractive;
     };
 
     struct Message : DialogueText
@@ -145,11 +146,16 @@ namespace MWGui
         void addMessageBox(const std::string& text);
 
         void onFrame(float dt) override;
-        void clear() override { resetReference(); }
+        void clear() override { finishSharedDialogue(); clearSharedHistory(); resetReference(); }
 
         void updateTopics();
 
         void onClose() override;
+
+        void receiveSharedDialogue(const mwmp::dialogue::Message& message);
+        void updateSharedDialogue(float dt);
+        bool isSharedDialogueOwner() const { return mSharedSession != 0 && !mSpectator && !mWaitingForShared; }
+        std::uint64_t getSharedDialogueSession() const { return mSharedSession; }
 
     protected:
         void updateTopicsPane();
@@ -183,6 +189,17 @@ namespace MWGui
         void onReferenceUnavailable() override;
 
     private:
+        bool beginSharedDialogue(const MWWorld::Ptr& actor);
+        void finishSharedDialogue(bool notifyServer = true);
+        void closeSharedDialogue(bool notifyServer);
+        void clearSharedHistory();
+        void shareEntry(const mwmp::dialogue::Entry& entry);
+        std::uint64_t mSharedSession = 0, mSharedRequest = 0;
+        bool mSpectator = false, mWaitingForShared = false, mOpeningShared = false;
+        float mSharedWaitTime = 0;
+        std::string mSharedCell, mSharedSpeaker, mSharedStatus;
+        std::vector<std::string> mSharedChoices, mSharedTopics;
+
         void updateDisposition();
         void restock();
         void deleteLater();

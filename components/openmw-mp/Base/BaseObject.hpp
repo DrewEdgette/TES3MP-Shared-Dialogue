@@ -42,6 +42,7 @@ namespace mwmp
         float scale;
 
         unsigned char dialogueChoiceType;
+        std::uint64_t dialogueSession = 0;
         std::string topicId;
         int guiId;
 

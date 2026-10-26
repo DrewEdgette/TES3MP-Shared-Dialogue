@@ -224,7 +224,7 @@ add_component_dir (openmw-mp/Packets/Player
         PacketPlayerItemUse PacketPlayerJail PacketPlayerJournal PacketPlayerLevel PacketPlayerMiscellaneous
         PacketPlayerMomentum PacketPlayerPosition PacketPlayerQuickKeys PacketPlayerReputation PacketPlayerRest
         PacketPlayerResurrect PacketPlayerShapeshift PacketPlayerSkill PacketPlayerSpeech PacketPlayerSpellbook
-        PacketPlayerSpellsActive PacketPlayerStatsDynamic PacketPlayerTopic
+        PacketPlayerSpellsActive PacketPlayerStatsDynamic PacketPlayerTopic PacketPlayerDialogue
         )
 
 add_component_dir (openmw-mp/Packets/Object

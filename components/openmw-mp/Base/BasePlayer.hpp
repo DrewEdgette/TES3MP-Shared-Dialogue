@@ -12,6 +12,7 @@
 #include <components/openmw-mp/Base/BaseStructs.hpp>
 
 #include <RakNetTypes.h>
+#include <components/openmw-mp/Dialogue.hpp>
 
 namespace mwmp
 {
@@ -214,6 +215,7 @@ namespace mwmp
         std::vector<JournalItem> journalChanges;
         FactionChanges factionChanges;
         std::vector<Topic> topicChanges;
+        dialogue::Message sharedDialogue;
         std::vector<Book> bookChanges;
         std::vector<CellState> cellStateChanges;
 

@@ -30,7 +30,7 @@ add_openmw_dir (mwinput
     )
 
 add_openmw_dir (mwgui
-    layout textinput widgets race class birth review windowmanagerimp console dialogue
+    layout textinput widgets race class birth review windowmanagerimp console dialogue shareddialogue
     windowbase statswindow messagebox journalwindow charactercreation
     mapwindow windowpinnablebase tooltips scrollwindow bookwindow resourceskin
     formatting inventorywindow container hud countdialog tradewindow settingswindow
@@ -128,7 +128,7 @@ add_openmw_dir (mwmp/processors/player ProcessorChatMessage ProcessorGUIMessageB
     ProcessorPlayerJournal ProcessorPlayerLevel ProcessorPlayerMiscellaneous ProcessorPlayerMomentum ProcessorPlayerPosition 
     ProcessorPlayerQuickKeys ProcessorPlayerReputation ProcessorPlayerResurrect ProcessorPlayerShapeshift
     ProcessorPlayerSkill ProcessorPlayerSpeech ProcessorPlayerSpellbook ProcessorPlayerSpellsActive
-    ProcessorPlayerStatsDynamic ProcessorPlayerTopic
+    ProcessorPlayerStatsDynamic ProcessorPlayerTopic ProcessorPlayerDialogue
     )
 
 add_openmw_dir (mwmp/processors/object BaseObjectProcessor

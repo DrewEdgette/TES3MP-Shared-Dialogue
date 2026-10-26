@@ -14,7 +14,8 @@ PlayerProcessor::~PlayerProcessor()
 
 bool PlayerProcessor::Process(RakNet::Packet &packet)
 {
-    RakNet::BitStream bsIn(&packet.data[1], packet.length, false);
+    if (packet.length < BasePacket::headerSize()) return false;
+    RakNet::BitStream bsIn(&packet.data[1], packet.length - 1, false);
     bsIn.Read(guid);
 
     PlayerPacket *myPacket = Main::get().getNetworking()->getPlayerPacket(packet.data[0]);
