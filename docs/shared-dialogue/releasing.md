@@ -27,14 +27,16 @@ After the [build and tests](building.md):
 
 Outputs go to `dist/release`:
 
-- `tes3mp-shared-dialogue-0.2.0-windows-x64-client.zip`
 - `tes3mp-shared-dialogue-0.2.0-windows-x64-client-server.zip`
 - `tes3mp-shared-dialogue-0.2.0-sources.zip`
 - `SHA256SUMS.txt`
 
+The combined Windows ZIP is for both joining players and hosts. Going forward,
+do not publish a separate client-only package.
+
 The script audits runtime imports, verifies source downloads, packages the full
 current source snapshot, and checks every ZIP entry against its source file.
-Each binary ZIP contains installation instructions, notices, a file manifest,
+The binary ZIP contains installation instructions, notices, a file manifest,
 `BUILD-INFO.json` and the runtime dependency report. Extra JSON/text files beside
 the ZIPs are local inspection copies of this metadata.
 
@@ -58,12 +60,12 @@ the ZIPs are local inspection copies of this metadata.
    Windows x64 target, TES3MP base, matching-client/server requirement and known
    limitations. Hosted CI must be checked separately; local tests do not prove
    that the GitHub workflow passed.
-5. Attach **all three ZIPs and SHA256SUMS.txt** to that same release. The source
+5. Attach **both ZIPs and SHA256SUMS.txt** to that same release. The source
    ZIP is part of the distribution; GitHub's automatic source archives do not
    replace it. Preserve the pairing when mirroring downloads.
 6. Include this notice near binary downloads, linking the actual source asset:
    "This software uses FFmpeg under the LGPLv2.1 or later. Matching FFmpeg and
    other dependency sources are included in this release's sources.zip."
 
-Players only need their appropriate binary ZIP. The source ZIP is provided for
+Players and hosts only need the combined Windows ZIP. The source ZIP is provided for
 developers and redistribution; it is not extracted into a player's installation.

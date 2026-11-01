@@ -1,45 +1,15 @@
 # TES3MP Shared Dialogue
 
-[TES3MP](https://github.com/TES3MP/TES3MP) fork that lets nearby
+Fork of [TES3MP](https://github.com/TES3MP/TES3MP) that lets nearby
 players follow the same NPC conversation in Morrowind. One player talks and everyone
-nearby sees the full dialogue as it happens, including blue keywords and available
-topics, without advancing the conversation or repeating its quest scripts.
+nearby sees the full dialogue as it happens.
 
-Based on TES3MP **0.8.1 / OpenMW 0.47.0**. The current development version is **0.2.0**,
-targeting Windows x64. This is a client and server engine modification, not an
+Based on TES3MP **0.8.1 / OpenMW 0.47.0**. This is a client and server engine modification, not an
 ESP or a server-only Lua mod.
 
 ![A spectator following an NPC conversation, with blue keywords and a visible topic list](docs/shared-dialogue/images/spectator.jpg)
 
-The spectator can read and scroll both panels; only the speaker can advance the dialogue.
-
-## Download and install
-
-Use this repository's **[Releases](../../releases)** page for published downloads.
-Before the first release is published, follow the [build guide](docs/shared-dialogue/building.md).
-GitHub's automatic **Source code** downloads are for building the project; they
-are not playable installations.
-
-| Package | Who needs it? |
-| --- | --- |
-| `tes3mp-shared-dialogue-0.2.0-windows-x64-client.zip` | Every joining player |
-| `tes3mp-shared-dialogue-0.2.0-windows-x64-client-server.zip` | The host, including their client |
-| `tes3mp-shared-dialogue-0.2.0-sources.zip` | Source and build materials for developers and redistributors |
-
-The Windows build uses [FFmpeg](https://ffmpeg.org) under the LGPLv2.1 or later.
-Its matching source is included in the `sources.zip` asset on the same
-[Releases](../../releases) page. See the [dependency inventory](THIRD-PARTY-NOTICES.md).
-
-These are upgrades for an existing **TES3MP 0.8.1 Windows x64** installation.
-Close the game and server, back up that installation, and extract the appropriate
-ZIP beside `tes3mp.exe`. Keep supplied subfolders intact. Every player needs the
-matching client, and the host needs the matching server. Stock TES3MP clients
-and servers cannot participate in this fork's protocol.
-
-See [installation and rollback](docs/shared-dialogue/installation.md) before
-upgrading a campaign. Game files, accounts, saves and personal configuration are
-not included. Players need their own Morrowind installation and the server's
-required content/mod list.
+The spectator can read and scroll both panels. Only the speaker can advance the dialogue.
 
 ## What changes
 
@@ -66,6 +36,37 @@ contents are not transferred. Journal sharing remains controlled by server scrip
 Voice support targets VoV's legacy `Say`-based ESP, including
 `VoV-uniqueDialogOnly.esp`. VoV is optional and is not bundled. See
 [voice compatibility](docs/shared-dialogue/configuration.md#optional-voices-of-vvardenfell).
+
+## Download and install
+
+Use this repository's **[Releases](../../releases)** page for published downloads.
+Before the first release is published, follow the [build guide](docs/shared-dialogue/building.md).
+GitHub's automatic **Source code** downloads are for building the project; they
+are not playable installations.
+
+| Download | Use |
+| --- | --- |
+| Windows x64 (`client-server.zip`) | Everyone: joining players and hosts |
+| Source bundle (`sources.zip`) | Developers and redistributors |
+
+Going forward, one Windows package includes both the client and server; no
+separate client-only download is needed. Joining players simply leave
+`tes3mp-server.exe` unused. Only the host runs it.
+
+The Windows build uses [FFmpeg](https://ffmpeg.org) under the LGPLv2.1 or later.
+Its matching source is included in the `sources.zip` asset on the same
+[Releases](../../releases) page. See the [dependency inventory](THIRD-PARTY-NOTICES.md).
+
+The Windows package upgrades an existing **TES3MP 0.8.1 Windows x64** installation.
+Close the game and server, back up that installation, and extract the Windows
+ZIP beside `tes3mp.exe`. Keep supplied subfolders intact. Every player needs the
+matching client, and the host needs the matching server. Stock TES3MP clients
+and servers cannot participate in this fork's protocol.
+
+See [installation and rollback](docs/shared-dialogue/installation.md) before
+upgrading a campaign. Game files, accounts, saves and personal configuration are
+not included. Players need their own Morrowind installation and the server's
+required content/mod list.
 
 ## Configuration
 

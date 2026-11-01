@@ -50,43 +50,41 @@ foreach ($document in Get-ChildItem -LiteralPath "$script:RepositoryRoot/docs/sh
     $baseFiles[$relative] = $document.FullName
 }
 $checksums = @($sourceHash + '  ' + $sourceName)
-foreach ($variant in @('client','client-server')) {
-    $files = $baseFiles.Clone()
-    $files['tes3mp.exe'] = Join-Path $script:Build 'Release/tes3mp.exe'
-    if ($variant -eq 'client-server') { $files['tes3mp-server.exe'] = Join-Path $script:Build 'Release/tes3mp-server.exe' }
-    $suffix = if ($Candidate) { '-candidate' } else { '' }
-    $name = "tes3mp-shared-dialogue-$($release.version)-windows-x64-$variant$suffix.zip"
-    $destination = Join-Path $output $name
-    $temporaryZip = Join-Path $output ([Guid]::NewGuid().ToString() + '.zip')
-    $manifest = @($files.Keys | Sort-Object | ForEach-Object {
-        [ordered]@{path=$_;sha256=(Get-FileHash -LiteralPath $files[$_] -Algorithm SHA256).Hash.ToLower()}
-    })
-    $fileList = Join-Path $output "$variant-files.json"
-    [IO.File]::WriteAllText($fileList, ($manifest | ConvertTo-Json -Depth 4) + "`n", $utf8)
-    $files['FILE-MANIFEST.json'] = $fileList
-    $zip = [IO.Compression.ZipFile]::Open($temporaryZip, [IO.Compression.ZipArchiveMode]::Create)
-    try {
-        foreach ($entryName in ($files.Keys | Sort-Object)) {
-            [void][IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $files[$entryName], $entryName)
+$files = $baseFiles.Clone()
+$files['tes3mp.exe'] = Join-Path $script:Build 'Release/tes3mp.exe'
+$files['tes3mp-server.exe'] = Join-Path $script:Build 'Release/tes3mp-server.exe'
+$suffix = if ($Candidate) { '-candidate' } else { '' }
+$name = "tes3mp-shared-dialogue-$($release.version)-windows-x64-client-server$suffix.zip"
+$destination = Join-Path $output $name
+$temporaryZip = Join-Path $output ([Guid]::NewGuid().ToString() + '.zip')
+$manifest = @($files.Keys | Sort-Object | ForEach-Object {
+    [ordered]@{path=$_;sha256=(Get-FileHash -LiteralPath $files[$_] -Algorithm SHA256).Hash.ToLower()}
+})
+$fileList = Join-Path $output 'client-server-files.json'
+[IO.File]::WriteAllText($fileList, ($manifest | ConvertTo-Json -Depth 4) + "`n", $utf8)
+$files['FILE-MANIFEST.json'] = $fileList
+$zip = [IO.Compression.ZipFile]::Open($temporaryZip, [IO.Compression.ZipArchiveMode]::Create)
+try {
+    foreach ($entryName in ($files.Keys | Sort-Object)) {
+        [void][IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $files[$entryName], $entryName)
+    }
+} finally { $zip.Dispose() }
+$zip = [IO.Compression.ZipFile]::OpenRead($temporaryZip)
+try {
+    if ($zip.Entries.Count -ne $files.Count) { throw 'Archive entry count mismatch' }
+    foreach ($entry in $zip.Entries) {
+        if (!$files.ContainsKey($entry.FullName)) { throw "Unexpected archive entry: $($entry.FullName)" }
+        $sha = [Security.Cryptography.SHA256]::Create()
+        $stream = $entry.Open()
+        try { $actual = [BitConverter]::ToString($sha.ComputeHash($stream)).Replace('-','') }
+        finally { $stream.Dispose(); $sha.Dispose() }
+        if ($actual -ne (Get-FileHash -LiteralPath $files[$entry.FullName] -Algorithm SHA256).Hash) {
+            throw "Archive content mismatch: $($entry.FullName)"
         }
-    } finally { $zip.Dispose() }
-    $zip = [IO.Compression.ZipFile]::OpenRead($temporaryZip)
-    try {
-        if ($zip.Entries.Count -ne $files.Count) { throw 'Archive entry count mismatch' }
-        foreach ($entry in $zip.Entries) {
-            if (!$files.ContainsKey($entry.FullName)) { throw "Unexpected archive entry: $($entry.FullName)" }
-            $sha = [Security.Cryptography.SHA256]::Create()
-            $stream = $entry.Open()
-            try { $actual = [BitConverter]::ToString($sha.ComputeHash($stream)).Replace('-','') }
-            finally { $stream.Dispose(); $sha.Dispose() }
-            if ($actual -ne (Get-FileHash -LiteralPath $files[$entry.FullName] -Algorithm SHA256).Hash) {
-                throw "Archive content mismatch: $($entry.FullName)"
-            }
-        }
-    } finally { $zip.Dispose() }
-    Move-Item -LiteralPath $temporaryZip -Destination $destination -Force
-    $checksums += (Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash.ToLower() + '  ' + $name
-    Write-Output "Verified $name ($($files.Count) files)"
-}
+    }
+} finally { $zip.Dispose() }
+Move-Item -LiteralPath $temporaryZip -Destination $destination -Force
+$checksums += (Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash.ToLower() + '  ' + $name
+Write-Output "Verified $name ($($files.Count) files)"
 [IO.File]::WriteAllText((Join-Path $output 'SHA256SUMS.txt'), ($checksums -join "`n") + "`n", $utf8)
 Write-Output "Local release artifacts: $output"

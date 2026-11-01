@@ -15,14 +15,16 @@ versions, VR, Linux and macOS game builds have not been validated for this relea
 ## Joining players
 
 1. Close TES3MP and back up the installation you are upgrading.
-2. Download the **client** ZIP from this fork's Releases page.
+2. Download the Windows **client-server** ZIP from this fork's Releases page.
+   Joining players and hosts use the same package.
 3. Extract it beside `tes3mp.exe`. Replace the supplied files and preserve their
    subfolders, including `osgPlugins-3.6.5` when included. Do not copy only the
    executable from a bundle that also supplies DLLs. Also replace the supplied
    `resources/version` file; it is part of TES3MP's connection compatibility check.
 4. Start TES3MP normally and connect to the matching server.
 
-Joining players do not need to run or update a server.
+The package includes both executables. Joining players only run the client;
+leave `tes3mp-server.exe` unused unless hosting.
 The separate `sources.zip` contains development and redistribution materials;
 players do not need to extract it to play.
 
