@@ -37,6 +37,19 @@ Voice support targets VoV's legacy `Say`-based ESP, including
 `VoV-uniqueDialogOnly.esp`. VoV is optional and is not bundled. See
 [voice compatibility](docs/shared-dialogue/configuration.md#optional-voices-of-vvardenfell).
 
+## Configuration
+
+The server can change the radius with:
+
+```ini
+[Dialogue]
+radius = 420
+```
+
+An explicit existing value overrides the default. See
+[configuration and compatibility](docs/shared-dialogue/configuration.md) for
+file locations, custom server scripts and protocol details.
+
 ## Download and install
 
 Use this repository's **[Releases](../../releases)** page for published downloads.
@@ -67,19 +80,6 @@ See [installation and rollback](docs/shared-dialogue/installation.md) before
 upgrading a campaign. Game files, accounts, saves and personal configuration are
 not included. Players need their own Morrowind installation and the server's
 required content/mod list.
-
-## Configuration
-
-The server can change the radius with:
-
-```ini
-[Dialogue]
-radius = 420
-```
-
-An explicit existing value overrides the default. See
-[configuration and compatibility](docs/shared-dialogue/configuration.md) for
-file locations, custom server scripts and protocol details.
 
 ## Development and support
 
