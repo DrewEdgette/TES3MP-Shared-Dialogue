@@ -32,11 +32,24 @@ image/font dependencies from the pinned source archives.
 | osg-ffmpeg-videoplayer | Included upstream source | [MIT](docs/shared-dialogue/licenses/osg-ffmpeg-videoplayer.txt) |
 | OpenMW input control, LuaBridge, PicoSHA2, Base64 | Included upstream source | [Embedded MIT notices](docs/shared-dialogue/licenses/embedded-components.txt) |
 
-CoreScripts and Lua-io2/sol2 are used for the isolated local development runtime;
-upgrade ZIPs do not replace the player's existing server scripts or those modules.
-Their licenses remain in the pinned source checkouts. innoextract and MSYS Make
-are build tools only and are not shipped in upgrade ZIPs. Font licenses remain in `files/mygui`;
-upgrade packages retain the installed engine resources instead of bundling fonts.
+The complete Windows package includes pinned CoreScripts (MIT) and Lua-io2 (MIT)
+with sol2 (MIT). Their license texts are included under `docs/shared-dialogue/licenses`
+in the binary package; their sources are included in `sources.zip`. Lua helper
+modules retain their embedded notices. Server files use the standard TES3MP layout. For upgrades, keep the existing
+server folder as described in the installation guide.
+
+Bundled DejaVu and Russo One fonts retain their license texts under
+`resources/mygui` (DejaVuFontLicense.txt and RussoOne-OFL.txt). Russo One is
+licensed under the SIL Open Font License 1.1; its original font is unchanged.
+The upstream license is from https://github.com/google/fonts/tree/main/ofl/russoone.
+
+The standard launcher, wizard and browser use the unmodified Qt 5.15.2 QtBase
+and QtSvg MSVC2019 x64 binaries (LGPLv3). Their matching source archives accompany
+the release in `sources.zip`. License texts and bundled third-party notices are
+under `docs/shared-dialogue/licenses/Qt-5.15.2`. These libraries are dynamically
+linked and may be replaced by compatible builds; no custom Qt changes are used.
+
+innoextract and MSYS Make are build tools only and are not shipped in the Windows ZIP.
 
 This software uses libraries from the [FFmpeg project](https://ffmpeg.org) under
 the LGPLv2.1 or later. The matching unmodified source and build configuration
@@ -52,7 +65,7 @@ No changes were made to the IJG-derived files in FFmpeg or libjpeg-turbo.
 
 ## Source and build materials
 
-Publish `tes3mp-shared-dialogue-0.1.0-sources.zip` alongside the two binary ZIPs
+Publish `tes3mp-shared-dialogue-0.2.0-sources.zip` alongside the complete Windows ZIP
 and `SHA256SUMS.txt` on the same release page. It contains the current engine
 source, the complete archives for rebuilt dependencies, pinned CrabNet/LuaJIT
 sources, supplementary sources for the unchanged permissive dependencies, and

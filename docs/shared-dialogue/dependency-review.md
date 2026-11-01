@@ -40,20 +40,21 @@ reconstruction of the unchanged prebuilt permissive libraries.
 
 ## Runtime and source packaging
 
-The explicit runtime list contains 33 DLLs, including eight OSG plugins.
-The import audit checks both engine
-executables and every selected DLL, rejecting unresolved dependencies. Windows
+The complete package includes the engine libraries, OSG plugins, Lua-io2 and
+Qt libraries/plugins for the standard launcher, wizard and browser. The import
+audit checks all six executables and every selected DLL, rejecting unresolved
+dependencies. Windows
 system libraries and Microsoft's Visual C++ x64 runtime are listed separately
 as prerequisites. Dynamic plugin loading is additionally exercised by tests.
 
-`package.ps1` creates both upgrade ZIPs, a matching source ZIP and SHA256SUMS.
+`package.ps1` creates one complete Windows ZIP, a matching source ZIP and SHA256SUMS.
 The source ZIP contains the complete current engine snapshot, original dependency
 source archives, build recipes, generated FFmpeg configuration and runtime import
-report. It records per-file hashes; each binary ZIP records the source ZIP's hash.
+report. It records per-file hashes; the Windows ZIP records the source ZIP's hash.
 Local working-tree edits are included and disclosed in build metadata. Final
 public packages should be regenerated from the reviewed release commit.
 
-The source ZIP must accompany the binary ZIPs on the same release page. Keep
+The source ZIP must accompany the Windows ZIP on the same release page. Keep
 those files together when mirroring a release. GitHub's automatic source download
 alone does not include the dependency source archives.
 

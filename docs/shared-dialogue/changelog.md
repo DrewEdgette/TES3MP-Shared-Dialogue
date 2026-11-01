@@ -1,7 +1,11 @@
 # Shared Dialogue changelog
 
-## 0.2.0 — unreleased
+## 0.2.0 - first public release candidate
 
+- One complete Windows package for players and hosts, with the normal TES3MP
+  launcher, setup wizard, server browser, engine resources and CoreScripts.
+- Fresh installations no longer require a separate TES3MP download.
+- Documented side-by-side upgrades preserve existing settings and campaign data.
 - Optional VoV speech for spectators during the initiator's greeting and topic selections.
 - Only local filenames are relayed; no voice files or result scripts are transferred.
 - Missing files are silently skipped, and unvoiced responses require no audio.
@@ -9,7 +13,7 @@
 - Speech stops on the next response, leaving, service transitions or session closure.
 - Matching client and server required: `0.8.1-shared-dialogue.2`, protocol **13**.
 
-## 0.1.0 — first public release candidate
+## 0.1.0 - unpublished development build
 
 Based on TES3MP 0.8.1 / OpenMW 0.47.0, commit
 `49be5b6405d6ab427e06ed350cf76c715a1f3bdd`.

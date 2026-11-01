@@ -10,8 +10,8 @@ $env:SDL2DIR = "$d/SDL2-2.0.12"
 $arguments = @('-S',$script:RepositoryRoot,'-B',$script:Build,'-G','Visual Studio 17 2022','-A','x64',
     '-U','OSG*','-U','OPENTHREADS*','-U','OPENSCENEGRAPH*','-U','FFmpeg_*',
     "-DCMAKE_GENERATOR_INSTANCE=$script:VisualStudio",
-    '-DBUILD_OPENMW=ON','-DBUILD_LAUNCHER=OFF','-DBUILD_BROWSER=OFF','-DBUILD_OPENCS=OFF',
-    '-DBUILD_WIZARD=OFF','-DBUILD_ESMTOOL=OFF','-DBUILD_BSATOOL=OFF','-DBUILD_NIFTEST=OFF',
+    '-DBUILD_OPENMW=ON','-DBUILD_LAUNCHER=ON','-DBUILD_BROWSER=ON','-DBUILD_OPENCS=OFF',
+    '-DBUILD_WIZARD=ON','-DBUILD_ESMTOOL=OFF','-DBUILD_BSATOOL=OFF','-DBUILD_NIFTEST=OFF',
     '-DBUILD_MWINIIMPORTER=ON','-DBUILD_UNITTESTS=OFF','-DENABLE_BREAKPAD=OFF','-DOPENMW_MP_BUILD=ON',
     '-DBOOST_STATIC=ON','-DBoost_COMPILER=-vc142',"-DCMAKE_INSTALL_PREFIX=$script:Build/install",
     "-DBOOST_ROOT=$d/boost-prebuilt/app","-DBOOST_LIBRARYDIR=$d/boost-prebuilt/app/lib64-msvc-14.2",
@@ -21,6 +21,6 @@ $arguments = @('-S',$script:RepositoryRoot,'-B',$script:Build,'-G','Visual Studi
     "-DRakNet_LIBRARY_DEBUG=$d/CrabNet/build/lib/Release/RakNetLibStatic.lib",
     "-DLuaJit_INCLUDE_DIR=$d/LuaJIT/src","-DLuaJit_LIBRARY=$d/LuaJIT/src/lua51.lib",
     "-DOPENAL_INCLUDE_DIR=$d/built/include/AL",
-    "-DOPENAL_LIBRARY=$d/built/lib/OpenAL32.lib","-DCMAKE_PREFIX_PATH=$d/built;$d")
+    "-DOPENAL_LIBRARY=$d/built/lib/OpenAL32.lib","-DCMAKE_PREFIX_PATH=$d/Qt/5.15.2/msvc2019_64;$d/built;$d")
 Invoke-Checked cmake $arguments
-Invoke-Checked cmake @('--build',$script:Build,'--config','Release','--target','tes3mp','tes3mp-server','openmw-iniimporter','--parallel',"$Jobs")
+Invoke-Checked cmake @('--build',$script:Build,'--config','Release','--target','tes3mp','tes3mp-server','openmw-iniimporter','openmw-launcher','openmw-wizard','tes3mp-browser','--parallel',"$Jobs")

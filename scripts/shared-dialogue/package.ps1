@@ -1,5 +1,6 @@
 param([string]$DependenciesPath, [string]$BuildPath, [switch]$Candidate)
 . "$PSScriptRoot/common.ps1"
+. "$PSScriptRoot/package-layout.ps1"
 Initialize-BuildPaths $DependenciesPath $BuildPath
 Assert-ReleaseVersion
 Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -32,10 +33,10 @@ $utf8 = New-Object Text.UTF8Encoding $false
 [IO.File]::WriteAllText($infoPath, ($buildInfo | ConvertTo-Json) + "`n", $utf8)
 $notice = Join-Path $output 'SOURCE-AND-INSTALLATION.txt'
 [IO.File]::WriteAllText($notice, "TES3MP Shared Dialogue $($release.version)`nInstallation instructions: docs/shared-dialogue/installation.md`nPublish with the matching source archive: $sourceName`nSource archive SHA256: $sourceHash`nLicense and attribution: THIRD-PARTY-NOTICES.md`n", $utf8)
-$baseFiles = Get-RuntimeLibraryMap
+$baseFiles = Get-CompletePackageMap
 $baseFiles['LICENSE'] = Join-Path $script:RepositoryRoot 'LICENSE'
 $baseFiles['THIRD-PARTY-NOTICES.md'] = Join-Path $script:RepositoryRoot 'THIRD-PARTY-NOTICES.md'
-foreach ($name in @('AUTHORS.md','tes3mp-credits.md','tes3mp-changelog.md','CHANGELOG.md')) {
+foreach ($name in @('README.md','AUTHORS.md','tes3mp-credits.md','tes3mp-changelog.md','CHANGELOG.md')) {
     $baseFiles[$name] = Join-Path $script:RepositoryRoot $name
 }
 $baseFiles['resources/version'] = $versionFile
@@ -54,13 +55,13 @@ $files = $baseFiles.Clone()
 $files['tes3mp.exe'] = Join-Path $script:Build 'Release/tes3mp.exe'
 $files['tes3mp-server.exe'] = Join-Path $script:Build 'Release/tes3mp-server.exe'
 $suffix = if ($Candidate) { '-candidate' } else { '' }
-$name = "tes3mp-shared-dialogue-$($release.version)-windows-x64-client-server$suffix.zip"
+$name = "tes3mp-shared-dialogue-$($release.version)-windows-x64$suffix.zip"
 $destination = Join-Path $output $name
 $temporaryZip = Join-Path $output ([Guid]::NewGuid().ToString() + '.zip')
 $manifest = @($files.Keys | Sort-Object | ForEach-Object {
     [ordered]@{path=$_;sha256=(Get-FileHash -LiteralPath $files[$_] -Algorithm SHA256).Hash.ToLower()}
 })
-$fileList = Join-Path $output 'client-server-files.json'
+$fileList = Join-Path $output 'windows-x64-files.json'
 [IO.File]::WriteAllText($fileList, ($manifest | ConvertTo-Json -Depth 4) + "`n", $utf8)
 $files['FILE-MANIFEST.json'] = $fileList
 $zip = [IO.Compression.ZipFile]::Open($temporaryZip, [IO.Compression.ZipArchiveMode]::Create)

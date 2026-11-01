@@ -41,6 +41,25 @@
 Rendered automation used a disposable localhost Lua fixture and `ForceGreeting`
 to open the real NPC window. Human playtesting additionally exercised normal use.
 
+## Complete Windows package checks
+
+- Standard client, server, launcher, setup wizard, browser and INI importer built.
+- Fresh package contains engine interface resources, CoreScripts and Lua-io2,
+  and excludes personal settings, saves and Morrowind game data.
+- All six executables and 47 DLLs pass the runtime import audit.
+- Archive contents pass per-file SHA-256 verification. Packaged CoreScripts
+  reaches `OnServerPostInit` on an isolated localhost server.
+- Standard Qt tools pass Windows startup smoke checks using isolated settings.
+  This verifies startup, not every wizard/browser interaction.
+- The documented side-by-side migration preserves byte-identical configuration,
+  custom scripts, server libraries, accounts and saves in disposable fixtures;
+  the original installation remains untouched.
+
+Run `./scripts/shared-dialogue/test-package.ps1 -PackagePath <windows-zip>` after
+packaging. It creates disposable fixtures under the build directory. Native Qt
+startup checks require a normal Windows desktop; first-run dialogs may appear
+briefly and are closed by the test. No custom launcher or installer is shipped.
+
 ## Limits
 
 - DLC quest coverage, all mods and all custom server scripts are not exhaustive.

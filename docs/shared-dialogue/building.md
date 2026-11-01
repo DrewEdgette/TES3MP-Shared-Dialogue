@@ -43,7 +43,8 @@ dependency build takes longer than subsequent incremental builds. Keep extracted
 source trees unmodified when creating releases; use a fresh dependency directory
 after changing source versions or experimenting with dependency patches.
 
-Executables appear in `build-shared-dialogue/Release`. Dependencies live in `deps`
+The build includes the existing TES3MP launcher, setup wizard and server browser,
+using pinned Qt 5.15.2 libraries. Executables appear in `build-shared-dialogue/Release`. Dependencies live in `deps`
 and temporary files in the build directory. Lower `-Jobs` if memory is limited.
 Scripts accept `-DependenciesPath` and `-BuildPath` for explicitly chosen paths;
 use the same paths across commands. Do not reuse a CMake directory belonging to
@@ -61,9 +62,10 @@ marker and no game data. Supply your own copied game files and configure this
 runtime manually for rendered testing. Automated tests do not need them.
 `stage-runtime.ps1 -RuntimePath <path>` can stage another disposable runtime.
 
-Packaging writes two Windows upgrade ZIPs, a matching source ZIP and checksums
+Packaging writes one complete Windows ZIP, a matching source ZIP and checksums
 under `dist/release`. The explicit runtime file list excludes settings, saves,
-game assets, portable markers and debug plugins/symbols. The source ZIP also
+game assets, portable markers and debug plugins/symbols. The package uses the
+standard TES3MP layout, including the launcher, wizard, browser and CoreScripts. The source ZIP also
 collects supplementary dependency source archives, so its first generation may
 download several hundred megabytes. `-Candidate` uses `dist/candidates` instead.
 See [release preparation](releasing.md) for the source materials that must

@@ -59,27 +59,30 @@ are not playable installations.
 
 | Download | Use |
 | --- | --- |
-| Windows x64 (`client-server.zip`) | Everyone: joining players and hosts |
+| Windows x64 (`windows-x64.zip`) | Everyone: joining players and hosts |
 | Source bundle (`sources.zip`) | Developers and redistributors |
 
-Going forward, one Windows package includes both the client and server; no
-separate client-only download is needed. Joining players simply leave
-`tes3mp-server.exe` unused. Only the host runs it.
+One complete package includes the client, server and the usual TES3MP launcher,
+setup wizard and server browser. **No existing TES3MP installation is needed.**
+Morrowind game files and mods are not included; use your own installed copy.
+
+- **New players:** extract the ZIP, run `openmw-wizard.exe` to select your
+  Morrowind installation, then use `tes3mp-browser.exe` to join your host.
+  Use `openmw-launcher.exe` for game settings and your server's mod list.
+- **Existing players and hosts:** extract into a **new folder** and keep the old
+  one as a backup. Normal Windows user settings are reused. Copy any customized
+  local `.cfg` files; hosts should replace the new `server` folder with a copy of
+  their existing one to retain scripts, accounts and saves. Portable installations
+  also need their existing `user` folder and `tes3mp-portable.txt`.
+- **Hosts:** run `tes3mp-server.exe` from that same package.
+
+See [installation and upgrades](docs/shared-dialogue/installation.md) for the
+steps, including relative game-data paths and rollback. Everyone must use the
+same Shared Dialogue build; stock TES3MP clients and servers cannot participate.
 
 The Windows build uses [FFmpeg](https://ffmpeg.org) under the LGPLv2.1 or later.
 Its matching source is included in the `sources.zip` asset on the same
 [Releases](../../releases) page. See the [dependency inventory](THIRD-PARTY-NOTICES.md).
-
-The Windows package upgrades an existing **TES3MP 0.8.1 Windows x64** installation.
-Close the game and server, back up that installation, and extract the Windows
-ZIP beside `tes3mp.exe`. Keep supplied subfolders intact. Every player needs the
-matching client, and the host needs the matching server. Stock TES3MP clients
-and servers cannot participate in this fork's protocol.
-
-See [installation and rollback](docs/shared-dialogue/installation.md) before
-upgrading a campaign. Game files, accounts, saves and personal configuration are
-not included. Players need their own Morrowind installation and the server's
-required content/mod list.
 
 ## Development and support
 

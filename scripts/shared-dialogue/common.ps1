@@ -80,6 +80,19 @@ function Get-RuntimeLibraryMap {
     return $files
 }
 
+function Get-QtRuntimeLibraryMap {
+    $qt = Join-Path $script:Dependencies 'Qt/5.15.2/msvc2019_64'
+    $files = @{}
+    foreach ($name in @('Qt5Core','Qt5Gui','Qt5Widgets','Qt5Network','Qt5OpenGL','Qt5Svg','libEGL','libGLESv2')) {
+        $files[$name + '.dll'] = Join-Path $qt "bin/$name.dll"
+    }
+    foreach ($name in @('platforms/qwindows.dll','styles/qwindowsvistastyle.dll',
+        'imageformats/qjpeg.dll','imageformats/qsvg.dll','iconengines/qsvgicon.dll')) {
+        $files[$name] = Join-Path $qt "plugins/$name"
+    }
+    return $files
+}
+
 function Copy-FileMap {
     param([hashtable]$Files, [string]$Destination)
     foreach ($name in $Files.Keys) {

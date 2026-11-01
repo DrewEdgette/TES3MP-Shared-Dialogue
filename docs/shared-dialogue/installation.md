@@ -1,69 +1,92 @@
-# Installation and rollback
+# Installation and upgrades
 
 ## Requirements
 
-- An existing TES3MP **0.8.1 Windows x64** installation.
-- Your own Morrowind game files and the server's required content/mod list.
+- **64-bit Windows**. A previous TES3MP installation is not required.
+- Your own installed Morrowind game files and the server's required expansions/mods.
+- Microsoft's [Visual C++ x64 Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist), if not already installed.
 - The same Shared Dialogue build on every client and the server.
-- Microsoft's [Visual C++ v14 x64 Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist).
-  Use the current x64 installer if Windows reports a missing `MSVCP140.dll` or
-  `VCRUNTIME140.dll`. It may already be installed on your machine.
 
-Version 0.2.0 reports `0.8.1-shared-dialogue.2`, protocol **13**. Other TES3MP
-versions, VR, Linux and macOS game builds have not been validated for this release.
+Version 0.2.0 reports `0.8.1-shared-dialogue.2`, protocol **13**. VR, Linux and
+macOS game builds have not been validated for this release.
 
-## Joining players
+## Fresh installation
 
-1. Close TES3MP and back up the installation you are upgrading.
-2. Download the Windows **client-server** ZIP from this fork's Releases page.
-   Joining players and hosts use the same package.
-3. Extract it beside `tes3mp.exe`. Replace the supplied files and preserve their
-   subfolders, including `osgPlugins-3.6.5` when included. Do not copy only the
-   executable from a bundle that also supplies DLLs. Also replace the supplied
-   `resources/version` file; it is part of TES3MP's connection compatibility check.
-4. Start TES3MP normally and connect to the matching server.
+1. Download `tes3mp-shared-dialogue-0.2.0-windows-x64.zip` from this fork's Releases
+   page and extract the entire archive into a writable folder.
+2. Run **openmw-wizard.exe** and select your existing Morrowind installation.
+   This is the normal OpenMW/TES3MP setup wizard. Your game files stay separate.
+3. Use **openmw-launcher.exe** to check game settings and enable the content
+   required by your host, in the correct order.
+4. Open **tes3mp-browser.exe** and connect to your host. For a direct connection,
+   set the destination address and port in `tes3mp-client-default.cfg` and run
+   **tes3mp.exe**. Existing user overrides take priority over defaults.
 
-The package includes both executables. Joining players only run the client;
-leave `tes3mp-server.exe` unused unless hosting.
-The separate `sources.zip` contains development and redistribution materials;
-players do not need to extract it to play.
+The complete package includes the normal client, server, launcher, wizard,
+server browser, engine interface resources and CoreScripts. Morrowind's game
+files and VoV are not included. The separate `sources.zip` is for developers;
+players do not need to extract it.
 
-## Host
+## Upgrading an existing installation
 
-1. Stop the server and client. Back up the installation and server `data`
-   directory, including campaign and player accounts.
-2. Extract the **client-server** ZIP into that installation.
-3. Keep the existing server scripts, accounts, saves, content list and connection
-   settings. The upgrade does not replace them.
-4. Review the optional `[Dialogue]` radius setting and restart the server.
-5. Have every player upgrade before connecting.
+Use a separate folder so new defaults cannot overwrite your existing files.
+Supported base: **TES3MP 0.8.1 Windows x64** or an earlier Shared Dialogue build.
+
+1. Close the old client, server and launchers. Keep the entire old installation
+   as your backup. Back up **Documents\My Games\OpenMW** as well, because normal
+   TES3MP installations share that user-settings location.
+2. Extract the complete new ZIP into a **new folder**.
+3. Copy your old installation's customized root `.cfg` files into the new folder,
+   replacing the supplied defaults. Do not copy old executables, DLLs or
+   `resources/version` over the new build.
+4. **Hosts:** rename the new package's `server` folder to `server-stock`, then
+   copy your complete old `server` folder into the new installation. This keeps
+   the campaign, accounts, required mod list, custom scripts and server libraries
+   together. If your `[Plugins] home` points elsewhere, keep that path and back up
+   that server directory instead.
+5. **Portable installations:** also copy the old `user` folder and
+   `tes3mp-portable.txt`. Ordinary installations automatically reuse
+   **Documents\My Games\OpenMW**; do not add a portable marker to those.
+6. If your configuration uses relative game-data paths (such as `./Data Files`),
+   copy those local game/mod folders too, or update their paths in the normal
+   launcher/configuration to point to the existing files. Do not delete the old
+   folder. Check the enabled mod list and server port before playing.
+7. Have every player upgrade before connecting. Run the normal executables from
+   the **new** installation.
+
+Existing `.cfg` settings, scripts, accounts and saves are carried forward rather
+than replaced by the bundled defaults. This is a normal folder-based TES3MP
+installation; there is no custom installer, launcher or automatic migration.
 
 Standard CoreScripts needs no changes. Custom scripts that rebuild dialogue-choice
 packets from scratch need review; see [compatibility](configuration.md).
 
-## Using the feature
+## Hosting
 
-Stand near the same NPC and let one player activate them. Nearby available players
-become listeners. Only the speaker can select topics, answer questions or open
-services. Listeners can Leave at any time and activate the same NPC to catch up
-while the conversation is still active. History ends with the session; it is not
-a permanent dialogue log.
+Run **tes3mp-server.exe**. The included CoreScripts defaults require Morrowind,
+Tribunal and Bloodmoon, and listen on UDP **25565**. A fresh server's accounts
+and campaign state are stored under `server/data`. Required content/checksums
+are in `server/data/requiredDataFiles.json`; game rules are in `server/scripts`.
+
+Join your own server using `localhost`. Other players need a reachable address;
+internet hosting may require port forwarding and Windows Firewall access.
+Existing hosts keep their existing configuration. See [configuration](configuration.md)
+for the dialogue radius, configuration locations and script compatibility.
 
 ## Troubleshooting
 
-- **Missing DLL:** extract the entire matching package. Do not download individual
-  DLLs from unrelated DLL sites.
-- **Version mismatch:** update the host and every client together.
-- **No automatic window:** check cell, NPC distance and open menus. Try activating
-  the NPC manually.
-- **Unexpected range:** explicit server settings override the default. Restart
-  the server after changing them.
-- **Custom script failure:** report the script version, NPC, topic and reproduction
-  steps without uploading passwords or account data.
+- **Missing DLL:** extract the entire package. Install Microsoft's x64 runtime
+  if Windows names `MSVCP140.dll` or `VCRUNTIME140.dll`; do not download loose DLLs.
+- **Version mismatch:** update every player and the host from the same release.
+- **Content mismatch:** match your host's game/mod versions and load order.
+- **No automatic dialogue:** check the cell, NPC distance and other open menus;
+  activate the NPC to join manually.
+- **Unexpected radius:** existing explicit server settings still override the default.
 
 ## Rollback
 
-Stop both programs and restore the backed-up installation, including its original
-executables and libraries. Keep the group on matching builds. Restore campaign
-data only if you also intend to undo progress made since that backup. The feature
-does not introduce a new saved transcript format in campaign data.
+Close the new client and server and return to the old installation. Restore the
+backed-up user configuration if it changed. Keep all players and the host on
+matching builds. A campaign played in the new folder has newer data there;
+returning to the old server data rolls back that progress. Preserve a copy of
+both before deciding which campaign state to keep.

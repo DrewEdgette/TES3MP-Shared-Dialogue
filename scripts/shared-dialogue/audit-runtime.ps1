@@ -3,13 +3,21 @@ param([string]$DependenciesPath, [string]$BuildPath, [string]$OutputPath)
 Initialize-BuildPaths $DependenciesPath $BuildPath
 Initialize-VisualStudio
 $files = Get-RuntimeLibraryMap
+foreach ($entry in (Get-QtRuntimeLibraryMap).GetEnumerator()) { $files[$entry.Key] = $entry.Value }
+foreach ($name in @('openmw-launcher.exe','openmw-wizard.exe','tes3mp-browser.exe')) {
+    $files[$name] = Join-Path $script:Build "Release/$name"
+}
 $files['tes3mp.exe'] = Join-Path $script:Build 'Release/tes3mp.exe'
 $files['tes3mp-server.exe'] = Join-Path $script:Build 'Release/tes3mp-server.exe'
+$files['openmw-iniimporter.exe'] = Join-Path $script:Build 'Release/openmw-iniimporter.exe'
+$files['server/lib/io2.dll'] = Join-Path $script:Dependencies 'Lua-io2/build/Release/io2.dll'
 $supplied = @{}
 foreach ($name in $files.Keys) { $supplied[[IO.Path]::GetFileName($name).ToLower()] = $name }
 $windowsLibraries = @('advapi32.dll','bcrypt.dll','gdi32.dll','imm32.dll','kernel32.dll','msvcrt.dll',
     'ole32.dll','oleaut32.dll','opengl32.dll','setupapi.dll','shell32.dll','user32.dll',
-    'version.dll','winmm.dll','ws2_32.dll')
+    'version.dll','winmm.dll','ws2_32.dll','crypt32.dll','d3d11.dll','d3d9.dll',
+    'dnsapi.dll','dwmapi.dll','dxgi.dll','iphlpapi.dll','mpr.dll','netapi32.dll',
+    'userenv.dll','uxtheme.dll','wtsapi32.dll')
 $report = @()
 foreach ($name in ($files.Keys | Sort-Object)) {
     if (!(Test-Path -LiteralPath $files[$name])) { throw "Missing runtime file: $name" }
@@ -21,7 +29,7 @@ foreach ($name in ($files.Keys | Sort-Object)) {
         $import = $Matches[1].ToLower()
         $kind = if ($supplied.ContainsKey($import)) { 'included' }
             elseif ($import -match '^(api-ms-win-|ext-ms-win-)' -or $windowsLibraries -contains $import) { 'Windows' }
-            elseif ($import -match '^(msvcp140|vcruntime140(_1)?)\.dll$') { 'Microsoft Visual C++ x64 runtime' }
+            elseif ($import -match '^(msvcp140(_1)?|vcruntime140(_1)?)\.dll$') { 'Microsoft Visual C++ x64 runtime' }
             else { throw "$name imports an unaccounted-for library: $import" }
         $imports += [ordered]@{name=$import;providedBy=$kind}
     }

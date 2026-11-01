@@ -48,6 +48,22 @@
       "kind": "inno",
       "destination": "boost-prebuilt",
       "probe": "boost-prebuilt/app/boost/version.hpp"
+    },
+    {
+      "file": "qt-5.15.2-qtbase-msvc2019-x64.7z",
+      "url": "https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt5_5152/qt.qt5.5152.win64_msvc2019_64/5.15.2-0-202011130602qtbase-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86_64.7z",
+      "sha256": "e563de40230295841c2eece26e347de709edc4bf035515cc239cae3c994c9af6",
+      "kind": "7z",
+      "destination": "Qt",
+      "probe": "Qt/5.15.2/msvc2019_64/bin/Qt5Core.dll"
+    },
+    {
+      "file": "qt-5.15.2-qtsvg-msvc2019-x64.7z",
+      "url": "https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt5_5152/qt.qt5.5152.win64_msvc2019_64/5.15.2-0-202011130602qtsvg-Windows-Windows_10-MSVC2019-Windows-Windows_10-X86_64.7z",
+      "sha256": "22daa63531f2eed8aeec02e047b73641739fa9d0288a5d2db4da25baf3a005a7",
+      "kind": "7z",
+      "destination": "Qt",
+      "probe": "Qt/5.15.2/msvc2019_64/bin/Qt5Svg.dll"
     }
   ],
   "sources": [

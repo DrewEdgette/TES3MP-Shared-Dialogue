@@ -11,9 +11,10 @@ their runtime source files was patched. Their build options and installation
 layout are recorded in engine/scripts/shared-dialogue/build-media-dependencies.ps1
 and build-ffmpeg.sh; generated FFmpeg configuration is under build-records/.
 
-The archive also includes the pinned CrabNet and LuaJIT sources, RecastNavigation,
+The archive also includes the pinned CrabNet, LuaJIT, CoreScripts and Lua-io2/sol2 sources, RecastNavigation,
 and the upstream version sources of the unchanged permissively licensed Boost,
-Bullet, MyGUI, SDL2 and LZ4 dependencies. Their original binary-input hashes remain
+Bullet, MyGUI, SDL2 and LZ4 dependencies. QtBase and QtSvg 5.15.2 sources match
+the unmodified Qt libraries used by the standard launcher, wizard and browser. Their original binary-input hashes remain
 in dependencies.json. Build tools and Microsoft system/compiler runtimes are not
 part of the distributed game libraries. The MSYS Make download is a build tool
 only; its pinned hash and URL are in source-archives.json.
@@ -26,7 +27,7 @@ If building solely from engine/, initialize a local Git repository first; client
 and server built from that checkout must share their generated resources/version.
 Replacing a shared library does not require changing TES3MP's version file.
 
-Publish this source ZIP alongside both binary ZIPs and SHA256SUMS.txt on the same
+Publish this source ZIP alongside the complete Windows ZIP and SHA256SUMS.txt on the same
 release page. Preserve the archive and matching sources when mirroring binaries.
 See engine/THIRD-PARTY-NOTICES.md for attribution and complete license texts.
 No Morrowind game data, campaign data, accounts or personal configuration is included.

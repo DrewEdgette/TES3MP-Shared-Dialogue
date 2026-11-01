@@ -1,6 +1,6 @@
 . "$PSScriptRoot/common.ps1"
 Assert-ReleaseVersion
-foreach ($script in Get-ChildItem -LiteralPath $PSScriptRoot -Filter '*.ps1') {
+foreach ($script in Get-ChildItem -LiteralPath $PSScriptRoot -Filter '*.ps1' -Recurse) {
     $tokens = $null
     $parseErrors = $null
     [void][Management.Automation.Language.Parser]::ParseFile($script.FullName, [ref]$tokens, [ref]$parseErrors)

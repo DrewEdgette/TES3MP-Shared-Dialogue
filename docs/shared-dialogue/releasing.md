@@ -27,11 +27,11 @@ After the [build and tests](building.md):
 
 Outputs go to `dist/release`:
 
-- `tes3mp-shared-dialogue-0.2.0-windows-x64-client-server.zip`
+- `tes3mp-shared-dialogue-0.2.0-windows-x64.zip`
 - `tes3mp-shared-dialogue-0.2.0-sources.zip`
 - `SHA256SUMS.txt`
 
-The combined Windows ZIP is for both joining players and hosts. Going forward,
+The complete Windows ZIP is for both joining players and hosts, including fresh installs. Going forward,
 do not publish a separate client-only package.
 
 The script audits runtime imports, verifies source downloads, packages the full
@@ -55,7 +55,8 @@ the ZIPs are local inspection copies of this metadata.
    complete the relevant rendered checks in [testing.md](testing.md).
 3. Review the package inventory. Game assets, accounts, saves, personal configs,
    logs, portable markers and development-only binaries must remain excluded.
-   Test upgrading a copy of a supported installation and restoring its backup.
+   Run `test-package.ps1 -PackagePath <zip>` for archive and startup checks.
+   Test setup and side-by-side migration with copied configuration/server data.
 4. Create the annotated tag and publish as a prerelease initially. State the
    Windows x64 target, TES3MP base, matching-client/server requirement and known
    limitations. Hosted CI must be checked separately; local tests do not prove
@@ -67,5 +68,5 @@ the ZIPs are local inspection copies of this metadata.
    "This software uses FFmpeg under the LGPLv2.1 or later. Matching FFmpeg and
    other dependency sources are included in this release's sources.zip."
 
-Players and hosts only need the combined Windows ZIP. The source ZIP is provided for
+Players and hosts only need the complete Windows ZIP. The source ZIP is provided for
 developers and redistribution; it is not extracted into a player's installation.

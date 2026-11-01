@@ -34,7 +34,7 @@ foreach ($manifestName in @('source-archives.json','source-supplements.json')) {
     }
 }
 $dependencyManifest = Get-Content -LiteralPath "$PSScriptRoot/dependencies.json" -Raw | ConvertFrom-Json
-foreach ($name in @('CrabNet','LuaJIT')) {
+foreach ($name in @('CrabNet','LuaJIT','CoreScripts','Lua-io2')) {
     $source = $dependencyManifest.sources | Where-Object directory -eq $name
     $directory = Join-Path $script:Dependencies $name
     $revision = & git -C $directory rev-parse HEAD
@@ -46,6 +46,15 @@ foreach ($name in @('CrabNet','LuaJIT')) {
     Invoke-Checked git @('-C',$directory,'archive','--format=tar',"--prefix=$name/","--output=$archive",$source.commit)
     $files['dependency-archives/' + [IO.Path]::GetFileName($archive)] = $archive
 }
+$sol = Join-Path $script:Dependencies 'Lua-io2/sol2'
+$solRevision = (& git -C "$script:Dependencies/Lua-io2" ls-tree HEAD sol2).Split()[2]
+$solHead = & git -C $sol rev-parse HEAD
+if ($LASTEXITCODE -or $solHead -ne $solRevision) { throw 'sol2 differs from the pinned Lua-io2 submodule' }
+$solChanges = & git -C $sol status --porcelain --untracked-files=no
+if ($LASTEXITCODE -or $solChanges) { throw 'Modified sol2 sources' }
+$solArchive = Join-Path $temporary "sol2-$solRevision.tar"
+Invoke-Checked git @('-C',$sol,'archive','--format=tar','--prefix=sol2/',"--output=$solArchive",$solRevision)
+$files['dependency-archives/' + [IO.Path]::GetFileName($solArchive)] = $solArchive
 foreach ($name in @('config.h','ffbuild/config.mak')) {
     $files['build-records/ffmpeg/' + $name] = Join-Path $script:Dependencies "source-build/ffmpeg/$name"
 }

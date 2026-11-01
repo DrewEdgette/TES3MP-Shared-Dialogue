@@ -42,6 +42,20 @@
       "file": "recastnavigation-e75adf86.zip",
       "url": "https://codeload.github.com/recastnavigation/recastnavigation/zip/e75adf86f91eb3082220085e42dda62679f9a3ea",
       "sha256": "d3339aaea1d81307bcac2bece176c5359ed5f8c8f9721fc360d28f82f9119253"
+    },
+    {
+      "name": "qtbase",
+      "version": "5.15.2",
+      "file": "qtbase-everywhere-src-5.15.2.tar.xz",
+      "url": "https://download.qt.io/archive/qt/5.15/5.15.2/submodules/qtbase-everywhere-src-5.15.2.tar.xz",
+      "sha256": "909fad2591ee367993a75d7e2ea50ad4db332f05e1c38dd7a5a274e156a4e0f8"
+    },
+    {
+      "name": "qtsvg",
+      "version": "5.15.2",
+      "file": "qtsvg-everywhere-src-5.15.2.tar.xz",
+      "url": "https://download.qt.io/archive/qt/5.15/5.15.2/submodules/qtsvg-everywhere-src-5.15.2.tar.xz",
+      "sha256": "8bc3c2c1bc2671e9c67d4205589a8309b57903721ad14c60ea21a5d06acb585e"
     }
   ]
 }
