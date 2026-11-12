@@ -66,6 +66,30 @@ namespace mwmp
     void SharedDialogue::process(Player& player, const dialogue::Message& message)
     {
         using dialogue::Action;
+        if (message.action == Action::Say)
+        {
+            if (!ready(player) || !dialogue::validSay(message)) return;
+            auto say = message;
+            if (say.actor.refId == "player")
+            {
+                // Shrine scripts use Player->Say. Anchor delivery to the actual
+                // sender, and let each recipient hear the voice in 2D locally.
+                say.actor.cell = cellName(player);
+                say.actor.refNum = say.actor.mpNum = 0;
+                for (int i = 0; i < 3; ++i) say.actor.position[i] = player.position.pos[i];
+            }
+            if (!dialogue::inRange(say.actor, cellName(player), player.position.pos, mRadius)) return;
+            auto* active = mSessions.forActor(say.actor);
+            if (active && active->owner != player.guid.g) return;
+            for (auto& pair : *Players::getPlayers())
+            {
+                auto& other = *pair.second;
+                if (other.guid != player.guid && ready(other) &&
+                    dialogue::inRange(say.actor, cellName(other), other.position.pos, mRadius))
+                    send(other, say);
+            }
+            return; // Live presentation only: never open or retain a session.
+        }
         if (message.action == Action::Request)
         {
             auto deny = [&]() {

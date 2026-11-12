@@ -2,7 +2,7 @@
 
 This patch is based on TES3MP commit
 `49be5b6405d6ab427e06ed350cf76c715a1f3bdd` (0.8.1).
-Its reported version is `0.8.1-shared-dialogue.2`, protocol 13.
+Its reported version is `0.8.1-shared-dialogue.3`, protocol 14.
 
 ## Ownership and presentation
 
@@ -78,6 +78,26 @@ sets the counter but marks the current response ineligible for speech, so even
 an in-flight event cannot replay a line on rejoin. New responses stop existing
 shared speech, including responses with no voice. Leaving, service transitions
 and session cleanup also stop it. Normal dialogue needs no voice event.
+
+## Scripted Say
+
+`Say` is a separate live presentation event on the same reliable ordered channel.
+It carries a bounded sound filename, subtitle and source reference without opening
+or retaining a conversation. The script opcode uses it whenever speech is not
+already captured by the existing greeting/topic `Voice` path, so lines are not
+sent twice. Recipients call only the sound manager and noninteractive message-box
+renderer. The initiating client remains responsible for script execution and
+`SayDone` timing; no quest, reward or choice scripts execute on recipients.
+
+The server checks sender/recipient readiness, death, cell and the configured
+listening radius. Non-player sources also respect any existing NPC owner lock.
+For shrine scripts' `Player->Say`, the server supplies the sender's actual cell
+and position; recipients play the voice on their own local player, preserving
+its direct 2D delivery. Other world references, including non-actor objects,
+retain positional playback. Each listener's subtitle setting is respected,
+and missing audio does not suppress the subtitle. Standalone subtitles bypass
+NPC transcripts to prevent duplicate display or retransmission. Late arrivals
+hear only future lines. The same safe relative-filename limits apply as for `Voice`.
 
 ## Windows isolation
 

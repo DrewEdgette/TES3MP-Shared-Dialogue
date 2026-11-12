@@ -28,7 +28,7 @@ namespace mwmp
             return RW(bytes, size, send);
         };
         unsigned char action = static_cast<unsigned char>(data.action);
-        if (!RW(action, send) || action > static_cast<unsigned char>(dialogue::Action::Voice) ||
+        if (!RW(action, send) || action > static_cast<unsigned char>(dialogue::Action::Say) ||
             !RW(data.session, send) || !RW(data.request, send) || !RW(data.owner, send) ||
             !string(data.actor.cell) || !string(data.actor.refId) || !string(data.actor.name) ||
             !RW(data.actor.refNum, send) || !RW(data.actor.mpNum, send))
@@ -67,6 +67,9 @@ namespace mwmp
         if (data.action == dialogue::Action::Voice &&
             (!RW(data.response, send) || !string(data.voice, dialogue::MaxVoicePath) ||
                 !data.response || !dialogue::validVoicePath(data.voice)))
+            packetValid = false;
+        if (data.action == dialogue::Action::Say &&
+            (!string(data.voice, dialogue::MaxVoicePath) || !string(data.subtitle) || !dialogue::validSay(data)))
             packetValid = false;
     }
 }

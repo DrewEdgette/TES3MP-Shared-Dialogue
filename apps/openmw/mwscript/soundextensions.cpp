@@ -56,12 +56,23 @@ namespace MWScript
                     auto* windows = MWBase::Environment::get().getWindowManager();
                     // VoV's legacy ESP uses Say in greeting/topic result scripts.
                     // Listeners receive only an optional sound name, never this script.
-                    if (context.getContextType() != Interpreter::Context::DIALOGUE ||
-                        !windows->getDialogueWindow()->saySharedDialogue(ptr, file))
+                    const bool sharedResponse = context.getContextType() == Interpreter::Context::DIALOGUE &&
+                        windows->getDialogueWindow()->saySharedDialogue(ptr, file);
+                    if (!sharedResponse)
+                    {
+                        // Includes shrine Player->Say, object scripts and global
+                        // scripts. Relay presentation without running them remotely.
+                        windows->getDialogueWindow()->shareSay(ptr, file, text);
                         MWBase::Environment::get().getSoundManager()->say (ptr, file);
+                    }
 
-                    if (MWBase::Environment::get().getWindowManager ()->getSubtitlesEnabled())
-                        context.messageBox (text);
+                    if (windows->getSubtitlesEnabled())
+                    {
+                        if (sharedResponse) context.messageBox(text);
+                        // Do not also append a standalone Say to a shared NPC
+                        // transcript: its recipients already receive the subtitle.
+                        else windows->messageBox(text, MWGui::ShowInDialogueMode_Never);
+                    }
                 }
         };
 

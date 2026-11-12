@@ -1,5 +1,16 @@
 # Shared Dialogue changelog
 
+## 0.3.0 - in development
+
+- Share native `Say` speech and subtitles outside NPC conversations, including
+  shrine deities, local/global scripts, and other speaking world references.
+- Preserve direct voice playback for shrine `Player->Say` and positional speech
+  for other sources; use the existing same-cell listening radius.
+- Respect listeners' subtitle settings and keep text visible if audio is missing.
+- Relay presentation only, without replaying quest scripts or retaining old lines.
+- Add packet and live-server regression checks for standalone speech.
+- Matching client and server required: `0.8.1-shared-dialogue.3`, protocol **14**.
+
 ## 0.2.0 - first public release candidate
 
 - One complete Windows package for players and hosts, with the normal TES3MP

@@ -155,6 +155,7 @@ namespace MWGui
         void receiveSharedDialogue(const mwmp::dialogue::Message& message);
         void updateSharedDialogue(float dt);
         bool saySharedDialogue(const MWWorld::Ptr& actor, const std::string& filename);
+        void shareSay(const MWWorld::Ptr& actor, const std::string& filename, const std::string& subtitle);
         bool isSharedDialogueOwner() const { return mSharedSession != 0 && !mSpectator && !mWaitingForShared; }
         std::uint64_t getSharedDialogueSession() const { return mSharedSession; }
 

@@ -12,7 +12,7 @@
 namespace mwmp { namespace dialogue
 {
     // Presentation only: no topic IDs, script source, or executable choices.
-    enum class Action : unsigned char { Request, Open, Append, State, Leave, End, Denied, Voice };
+    enum class Action : unsigned char { Request, Open, Append, State, Leave, End, Denied, Voice, Say };
     constexpr std::size_t MaxString = 32768;
     constexpr std::size_t MaxEntries = 4096;
     constexpr std::size_t MaxHistoryBytes = 4 * 1024 * 1024;
@@ -121,8 +121,18 @@ namespace mwmp { namespace dialogue
         std::vector<Entry> entries;
         std::vector<std::string> choices, topics;
         std::uint32_t response = 0;
-        std::string voice; // Optional live Voice action only; no audio bytes.
+        std::string voice; // Live Voice/Say actions only; no audio bytes.
+        std::string subtitle; // Say is independent of an NPC conversation.
     };
+
+    inline bool validSay(const Message& message)
+    {
+        return message.action == Action::Say && message.session == 0 && message.request == 0 &&
+            !message.owner && !message.actor.refId.empty() && message.entries.empty() &&
+            message.choices.empty() && message.topics.empty() && message.status.empty() &&
+            message.speaker.empty() && message.response == 0 && validVoicePath(message.voice) &&
+            message.subtitle.size() <= MaxString;
+    }
 
     struct Session
     {

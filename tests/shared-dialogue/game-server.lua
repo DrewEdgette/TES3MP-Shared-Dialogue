@@ -24,6 +24,14 @@ function UiTick()
             local pid = tonumber(action:match("%d+$")) or 0
             if connected[pid] then
                 if action:match("^talk") then command(pid, "ForceGreeting", true)
+                elseif action:match("^saynext") then
+                    command(pid, 'Player->Say "Vo\\Misc\\DA_AzuraIntro2.wav", "Shared Say test: the next deity line."')
+                elseif action:match("^saymissing") then
+                    command(pid, 'Player->Say "Vo\\SharedDialogueMissing.wav", "Shared Say test: subtitle with missing audio."')
+                elseif action:match("^sayactor") then
+                    command(pid, 'Say "Vo\\Misc\\DA_AzuraIntro1.wav", "Shared Say test: positional NPC speech."', true)
+                elseif action:match("^say") then
+                    command(pid, 'Player->Say "Vo\\Misc\\DA_AzuraIntro1.wav", "Shared Say test: the deity speaks to both players."')
                 elseif action:match("^topics") then
                     -- Seed only this client's knowledge so mirroring cannot accidentally
                     -- pass by using the spectator's own available topics.

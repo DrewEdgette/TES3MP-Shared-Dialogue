@@ -7,12 +7,12 @@
 - Microsoft's [Visual C++ x64 Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist), if not already installed.
 - The same Shared Dialogue build on every client and the server.
 
-Version 0.2.0 reports `0.8.1-shared-dialogue.2`, protocol **13**. VR, Linux and
+Version 0.3.0 reports `0.8.1-shared-dialogue.3`, protocol **14**. VR, Linux and
 macOS game builds have not been validated for this release.
 
 ## Fresh installation
 
-1. Download `tes3mp-shared-dialogue-0.2.0-windows-x64.zip` from this fork's Releases
+1. Download `tes3mp-shared-dialogue-0.3.0-windows-x64.zip` from this fork's Releases
    page and extract the entire archive into a writable folder.
 2. Run **openmw-wizard.exe** and select your existing Morrowind installation.
    This is the normal OpenMW/TES3MP setup wizard. Your game files stay separate.

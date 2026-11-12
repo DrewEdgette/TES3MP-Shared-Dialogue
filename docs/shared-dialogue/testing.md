@@ -9,10 +9,12 @@
   and the 420-unit 3D distance boundary.
 - Production serializer tests for UTF-8, every byte truncation of a valid message,
   malformed sizes/actions, topic limits and fresh decode state.
-- **98** live checks against an isolated server and four headless clients:
+- **146** live checks against an isolated server and four headless clients:
   filtering, ownership, spectator permissions, topic updates, replay, death,
   cell transitions, disconnect cleanup, live voice relay, duplicate/stale voice
-  rejection, unauthorized speech and transcript replay without voice data.
+  rejection, unauthorized speech and transcript replay without voice data;
+  standalone player/object `Say`, multi-line subtitles, no sender echo, range/cell
+  filtering, server-held player positions and dead sender/recipient rejection.
 - Two rendered clients: automatic opening, matching text, inert blue keywords
   and topic entries, wheel/scrollbar operation, leave/rejoin including new topics,
   role reversal, session closure and Training status.
@@ -41,6 +43,15 @@
 Rendered automation used a disposable localhost Lua fixture and `ForceGreeting`
 to open the real NPC window. Human playtesting additionally exercised normal use.
 
+On 2026-11-12, two rendered protocol-14 clients in a disposable fixture displayed
+matching standalone `Player->Say` subtitles using native Azura sound files.
+The listener's sound manager confirmed successful playback of both intro lines
+and positional NPC `Say`. A missing file still displayed its subtitle, with no
+missing-file error on the receiving client. A standalone line during a shared
+NPC conversation displayed once without changing the transcript or closing it.
+These commands exercise the shrine speech path; a complete shrine quest playthrough
+and reward/journal progression were not part of this smoke check.
+
 ## Complete Windows package checks
 
 - Standard client, server, launcher, setup wizard, browser and INI importer built.
@@ -66,7 +77,7 @@ briefly and are closed by the test. No custom launcher or installer is shipped.
 - Windows x64 is the validated game platform; VR/Linux/macOS remain unvalidated.
 - The translated `@topic#` code path is supported, but rendered tests used English.
 - Service contents are not mirrored. Activity labels are English. Voice support
-  targets the legacy VoV ESP's `Say` scripts; modern OpenMW Lua voice mods are not
+  covers native `Say` scripts, including the legacy VoV ESP; modern OpenMW Lua voice mods are not
   supported. Voice files are never supplied or transferred by this fork.
 - History lasts only for the session, subject to the [documented limits](architecture.md).
 
@@ -91,6 +102,11 @@ Use `start-ui-test.ps1` only locally; it binds to 127.0.0.1:25577. Its `command.
 accepts `talk0`/`talk1` (open/rejoin), `setup0`/`setup1` (controls) and
 `topics0`/`topics1` (teach only the named player some topics to verify
 speaker-specific mirroring).
+It also accepts `say0`, `saynext0`, `sayactor0` and `saymissing0` to exercise
+player-targeted deity speech, a subsequent line, positional NPC speech and a
+subtitle with unavailable audio. Replace the trailing digit with the sender's
+player ID. Enable subtitles in the test clients; the fixture requires your own
+Morrowind files for native voices.
 
 Before gameplay changes or new platform releases, use copied campaign data to
 check a fresh quest/journal update, forced choices, simultaneous activation,

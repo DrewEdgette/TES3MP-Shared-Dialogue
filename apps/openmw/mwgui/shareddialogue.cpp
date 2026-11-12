@@ -76,6 +76,23 @@ namespace MWGui
         return true;
     }
 
+    void DialogueWindow::shareSay(const MWWorld::Ptr& actor, const std::string& filename,
+        const std::string& subtitle)
+    {
+        if (actor.isEmpty() || !actor.isInCell()) return;
+        mwmp::dialogue::Message message;
+        message.action = mwmp::dialogue::Action::Say;
+        message.actor.cell = cellName(actor);
+        message.actor.refId = actor == MWMechanics::getPlayer() ? "player" :
+            Misc::StringUtils::lowerCase(actor.getCellRef().getRefId());
+        message.actor.refNum = actor.getCellRef().getRefNum().mIndex;
+        message.actor.mpNum = actor.getCellRef().getMpNum();
+        for (int i = 0; i < 3; ++i) message.actor.position[i] = actor.getRefData().getPosition().pos[i];
+        message.voice = filename;
+        message.subtitle = subtitle;
+        if (mwmp::dialogue::validSay(message)) sendShared(message);
+    }
+
     void DialogueWindow::clearSharedHistory()
     {
         for (auto* entry : mHistoryContents) delete entry;
@@ -176,6 +193,21 @@ namespace MWGui
     {
         using mwmp::dialogue::Action;
         auto* windows = MWBase::Environment::get().getWindowManager();
+        if (message.action == Action::Say)
+        {
+            auto player = MWMechanics::getPlayer();
+            if (!mwmp::dialogue::validSay(message) || !mwmp::Main::get().getLocalPlayer()->isLoggedIn() ||
+                cellName(player) != message.actor.cell || player.getClass().getCreatureStats(player).isDead()) return;
+            auto actor = message.actor.refId == "player" ? player :
+                MWBase::Environment::get().getWorld()->searchPtrViaUniqueIndex(message.actor.refNum, message.actor.mpNum);
+            if (actor.isEmpty() || !actor.isInCell() || cellName(actor) != message.actor.cell ||
+                (actor != player && Misc::StringUtils::lowerCase(actor.getCellRef().getRefId()) != message.actor.refId)) return;
+            const bool played = MWBase::Environment::get().getSoundManager()->sayOptional(actor, message.voice);
+            if (windows->getSubtitlesEnabled() && !message.subtitle.empty())
+                windows->messageBox(message.subtitle, ShowInDialogueMode_Never);
+            Log(Debug::Verbose) << "Shared Say " << (played ? "played: " : "audio unavailable: ") << message.voice;
+            return;
+        }
         if (message.action == Action::Open)
         {
             auto decline = [&]() {

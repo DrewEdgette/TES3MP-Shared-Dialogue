@@ -119,6 +119,36 @@ int main(int argc, char** argv)
         CHECK(argc == 2);
         Client a("Speaker"), b("Listener"), distant("Far"), otherCell("Other cell");
         a.connect(argv[1]); b.connect(argv[1]); distant.connect(argv[1]); otherCell.connect(argv[1]);
+        auto noMessages = [&]() {
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+            for (auto* client : {&a, &b, &distant, &otherCell})
+            { client->pump(); CHECK(client->inbox.empty()); }
+        };
+        Message say;
+        say.action = Action::Say;
+        say.actor.cell = "dialogue test";
+        say.actor.refId = "player";
+        say.voice = "Vo\\Misc\\DA_AzuraIntro1.wav";
+        say.subtitle = u8"A deity speaks: é, 日本語.";
+        a.send(say);
+        auto shrine = b.wait(Action::Say);
+        CHECK(shrine.voice == say.voice && shrine.subtitle == say.subtitle);
+        CHECK(shrine.session == 0 && shrine.actor.refId == "player");
+        noMessages(); // No echo to the speaker, distant players or other cells.
+        say.voice = "Vo/Misc/DA_AzuraIntro2.wav";
+        say.subtitle = "The next line of the quest.";
+        a.send(say);
+        CHECK(b.wait(Action::Say).subtitle == say.subtitle); // Every line, no NPC response required.
+        noMessages();
+        // A player-targeted Say uses server-held coordinates/cell, not forged ones.
+        distant.send(say);
+        otherCell.send(say);
+        noMessages();
+        say.actor.refId = "shrine_azura"; say.actor.refNum = 456;
+        a.send(say);
+        CHECK(b.wait(Action::Say).actor == say.actor); // Non-actor references can speak too.
+        distant.send(say); otherCell.send(say);
+        noMessages(); // Non-player sources require a nearby, same-cell sender.
         Message request;
         request.action = Action::Request;
         request.request = 1;
@@ -130,6 +160,12 @@ int main(int argc, char** argv)
         auto owner = a.wait(Action::Open, 1);
         auto listener = b.wait(Action::Open);
         CHECK(owner.owner && !listener.owner && owner.session == listener.session);
+        say.actor = request.actor;
+        b.send(say); // Standalone speech must not bypass an NPC's owner lock.
+        noMessages();
+        a.send(say);
+        CHECK(b.wait(Action::Say).subtitle == say.subtitle);
+        noMessages(); // Say does not close/change the active conversation.
         distant.send(request); CHECK(distant.wait(Action::Denied, 1).session == 0);
         otherCell.send(request); CHECK(otherCell.wait(Action::Denied, 1).session == 0);
         Message append;
@@ -206,6 +242,10 @@ int main(int argc, char** argv)
         a.header(death, ID_PLAYER_DEATH);
         death.Write(char(1)); death.Write(true); death.Write(a.peer->GetMyGUID());
         a.transmit(death); a.wait(Action::End); b.wait(Action::End);
+        say.actor.refId = "player";
+        a.send(say); // Dead senders cannot broadcast.
+        b.send(say); // Dead recipients do not hear it.
+        noMessages();
         RakNet::BitStream resurrect;
         a.header(resurrect, ID_PLAYER_RESURRECT); resurrect.Write(int(0)); a.transmit(resurrect);
         request.request = 12; a.send(request);

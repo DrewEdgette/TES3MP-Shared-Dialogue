@@ -24,6 +24,8 @@ The spectator can read and scroll both panels. Only the speaker can advance the 
 - Optional Voices of Vvardenfell support: listeners hear voiced greetings and
   selected topics when they have the same local audio files. Missing files and
   unvoiced responses stay silent; rejoining never replays earlier speech.
+- Scripted `Say` subtitles and speech are also shared with nearby players,
+  including deity voices at shrines and speech outside NPC conversations.
 - Barter, travel, enchanting and other services display an activity status for
   listeners while the speaker uses the normal service window.
 - Goodbye, cell changes, death and disconnect clean up the relevant sessions.

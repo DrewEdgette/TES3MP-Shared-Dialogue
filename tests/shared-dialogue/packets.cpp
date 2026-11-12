@@ -140,6 +140,66 @@ int main()
         CHECK(!reader.isPacketValid());
     }
 
+    // Scripted Say works without a conversation and carries its own subtitle.
+    for (const auto& source : {"player", "shrine_azura", "test npc"})
+    {
+        message = dialogue::Message();
+        message.action = dialogue::Action::Say;
+        message.actor.cell = "shrine cell";
+        message.actor.refId = source;
+        message.actor.refNum = 123;
+        message.voice = "Vo\\Misc\\DA_AzuraIntro1.wav";
+        message.subtitle = u8"Shared subtitle: é, 日本語.\nSecond line.";
+        RakNet::BitStream say;
+        writer.serialize(&say, true, message);
+        CHECK(writer.isPacketValid());
+        say.IgnoreBytes(BasePacket::headerSize());
+        reader.serialize(&say, false, target);
+        CHECK(reader.isPacketValid());
+        CHECK(target.actor == message.actor && target.voice == message.voice);
+        CHECK(target.subtitle == message.subtitle && target.session == 0);
+        for (unsigned int bytes = BasePacket::headerSize(); bytes < say.GetNumberOfBytesUsed(); ++bytes)
+        {
+            RakNet::BitStream truncated(say.GetData(), bytes, false);
+            truncated.IgnoreBytes(BasePacket::headerSize());
+            reader.serialize(&truncated, false, target);
+            CHECK(!reader.isPacketValid());
+        }
+    }
+    const auto validSay = message;
+    for (int kind = 0; kind < 7; ++kind)
+    {
+        message = validSay;
+        switch (kind)
+        {
+            case 0: message.voice = "../voice.wav"; break;
+            case 1: message.subtitle.assign(dialogue::MaxString + 1, 'x'); break;
+            case 2: message.actor.refId.clear(); break;
+            case 3: message.session = 1; break;
+            case 4: message.entries.push_back(greeting); break;
+            case 5: message.topics = {"executable topic"}; break;
+            case 6: message.request = 1; break;
+        }
+        RakNet::BitStream badSay;
+        writer.serialize(&badSay, true, message);
+        CHECK(!writer.isPacketValid());
+        badSay.IgnoreBytes(BasePacket::headerSize());
+        reader.serialize(&badSay, false, target);
+        CHECK(!reader.isPacketValid());
+    }
+    // Empty text is valid for voice-only Say, and the maximum subtitle fits.
+    for (const auto& subtitle : {std::string(), std::string(dialogue::MaxString, 'x')})
+    {
+        message = validSay;
+        message.subtitle = subtitle;
+        RakNet::BitStream say;
+        writer.serialize(&say, true, message);
+        CHECK(writer.isPacketValid());
+        say.IgnoreBytes(BasePacket::headerSize());
+        reader.serialize(&say, false, target);
+        CHECK(reader.isPacketValid() && target.subtitle == subtitle);
+    }
+
     message = dialogue::Message();
     message.action = dialogue::Action::End;
     message.session = 999;
@@ -153,5 +213,6 @@ int main()
     CHECK(target.topics.empty());
     CHECK(target.session == 999);
     CHECK(target.voice.empty() && target.response == 0);
+    CHECK(target.subtitle.empty());
     std::cout << checks << " production packet checks passed\n";
 }

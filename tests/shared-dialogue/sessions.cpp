@@ -158,5 +158,18 @@ int main()
     CHECK(!listener.accept(3, voice)); // leave/rejoin never repeats a line
     CHECK(spoken.end(conversation, 1));
     CHECK(!spoken.voice(conversation, 1, 3, voice));
+    Message say;
+    say.action = Action::Say;
+    say.actor.refId = "player";
+    say.voice = "Vo\\Misc\\DA_AzuraIntro1.wav";
+    CHECK(validSay(say)); // No active session or subtitle is required.
+    say.subtitle = "The deity speaks.";
+    CHECK(validSay(say));
+    say.session = 1;
+    CHECK(!validSay(say));
+    say.session = 0; say.owner = true;
+    CHECK(!validSay(say));
+    say.owner = false; say.subtitle.assign(MaxString + 1, 'x');
+    CHECK(!validSay(say));
     std::cout << checks << " shared dialogue checks passed\n";
 }
